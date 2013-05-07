@@ -25,7 +25,9 @@
 
 - (void)onBarbuttonItem
 {
-    [self.gesturedNavigationController setNavigationBarHidden:YES animated:YES];
+   [self.gesturedNavigationController.parentViewController dismissViewControllerAnimated:YES completion:^{
+       
+   }];
 }
 
 - (void)didReceiveMemoryWarning
@@ -41,7 +43,7 @@
 
 - (void)didResignActive
 {
-    
+
 }
 
 - (IBAction)onPushNewVC:(id)sender {

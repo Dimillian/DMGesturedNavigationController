@@ -16,6 +16,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     NSMutableArray *_internalViewControllers;
     NSInteger _previousPage;
+    UIViewController *_tmpViewController;
 }
 
 @property (nonatomic, readwrite, strong) UIViewController *visibleViewController;
@@ -75,12 +76,6 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self reloadChildViewControllers];
     _currentPage = 0;
     _previousPage = 0;
-    [self addObserver:self forKeyPath:@"navigationBarHidden"
-              options:NSKeyValueObservingOptionNew
-              context:nil];
-    [self addObserver:self forKeyPath:@"currentPage"
-              options:NSKeyValueObservingOptionNew
-              context:nil];
     UIViewController *controller = [_internalViewControllers objectAtIndex:0];
     [self.navigationBar pushNavigationItem:controller.navigationItem animated:YES];
 }
@@ -99,6 +94,24 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
+}
+
+- (void)viewDidDisappear:(BOOL)animated
+{
+    [self removeObserver:self forKeyPath:@"navigationBarHidden"],
+    [self removeObserver:self forKeyPath:@"currentPage"];
+    [super viewDidDisappear:animated];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    [self addObserver:self forKeyPath:@"navigationBarHidden"
+              options:NSKeyValueObservingOptionNew
+              context:nil];
+    [self addObserver:self forKeyPath:@"currentPage"
+              options:NSKeyValueObservingOptionNew
+              context:nil];
 }
 
 
@@ -145,20 +158,24 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     UIViewController *current = [self visibleViewController];
     [current viewDidAppear:YES];
-    UIViewController *previous = current.previousViewController;
+    UIViewController *previousInStack = current.previousViewController;
+    UIViewController *realPrevious = [self viewControllerForPage:_previousPage];
     NSString *title = @"Back";
-    if (previous.title) {
-        title = previous.title;
+    if (previousInStack.title) {
+        title = previousInStack.title;
     }
     if ([current respondsToSelector:@selector(didBecomeActive)]) {
         [current performSelector:@selector(didBecomeActive)];
+    }
+    if ([realPrevious respondsToSelector:@selector(didResignActive)]) {
+        [realPrevious performSelector:@selector(didResignActive)];
     }
     if (self.currentPage != 0) {
         UINavigationItem *newItem = current.navigationItem;
         [newItem setHidesBackButton:YES];
         UIBarButtonItem *item;
         if (_customBackButtonItem) {
-            _customBackButtonItem.title = previous.title;
+            _customBackButtonItem.title = previousInStack.title;
             item = _customBackButtonItem;
         }
         else{
@@ -171,8 +188,10 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         newItem.leftBarButtonItem = item;
         if (self.currentPage < _previousPage) {
             [self.navigationBar popNavigationItemAnimated:self.isAnimatedNavbarChange];
+            _tmpViewController = [self viewControllerForPage:_previousPage];
         }
         else{
+            _tmpViewController = nil;
             [self.navigationBar pushNavigationItem:newItem animated:self.isAnimatedNavbarChange];
         }
     }
@@ -183,6 +202,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
             [items addObject:controller.navigationItem];
         }
         [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:YES];
+        _tmpViewController = [self viewControllerForPage:_previousPage];
     }
     _previousPage = self.currentPage;
 }
@@ -196,6 +216,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     [self.containerScrollView setContentOffset:CGPointMake(self.view.frame.size.width * page, 0.0f) animated:animated];
 }
+
 
 - (UIViewController *)viewControllerForPage:(NSInteger)page
 {
@@ -348,6 +369,21 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     NSInteger newOffset = [self currentOffset];
     if (newOffset != _currentPage) {
         self.currentPage = newOffset;
+    }
+    [NSObject cancelPreviousPerformRequestsWithTarget:self];
+    [self performSelector:@selector(scrollViewDidEndScrollingAnimation:) withObject:nil afterDelay:0.1];
+
+}
+
+- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
+{
+    if (_tmpViewController && !self.isPreserveStack) {
+        [_tmpViewController willMoveToParentViewController:nil];
+        [_tmpViewController.view removeFromSuperview];
+        [_internalViewControllers removeObject:_tmpViewController];
+        [_tmpViewController didMoveToParentViewController:nil];
+        _tmpViewController = nil;
+        [self reloadChildViewControllers];
     }
 }
 

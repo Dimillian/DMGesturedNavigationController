@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		53595AC017392945002CBF6B /* WithinNavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595ABF17392945002CBF6B /* WithinNavigationViewController.m */; };
 		53595AC31739324E002CBF6B /* DMGesturedPageIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595AC21739324E002CBF6B /* DMGesturedPageIndicator.m */; };
+		53595AC7173954E0002CBF6B /* ChoiceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595AC5173954E0002CBF6B /* ChoiceViewController.m */; };
+		53595AC8173954E0002CBF6B /* ChoiceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53595AC6173954E0002CBF6B /* ChoiceViewController.xib */; };
 		9F0B625117358ECB00B2AAE9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F0B625017358ECB00B2AAE9 /* UIKit.framework */; };
 		9F0B625317358ECB00B2AAE9 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F0B625217358ECB00B2AAE9 /* Foundation.framework */; };
 		9F0B625517358ECB00B2AAE9 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9F0B625417358ECB00B2AAE9 /* CoreGraphics.framework */; };
@@ -28,6 +30,9 @@
 		53595ABF17392945002CBF6B /* WithinNavigationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WithinNavigationViewController.m; sourceTree = "<group>"; };
 		53595AC11739324E002CBF6B /* DMGesturedPageIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DMGesturedPageIndicator.h; path = Classes/DMGesturedPageIndicator.h; sourceTree = "<group>"; };
 		53595AC21739324E002CBF6B /* DMGesturedPageIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DMGesturedPageIndicator.m; path = Classes/DMGesturedPageIndicator.m; sourceTree = "<group>"; };
+		53595AC4173954E0002CBF6B /* ChoiceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChoiceViewController.h; sourceTree = "<group>"; };
+		53595AC5173954E0002CBF6B /* ChoiceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChoiceViewController.m; sourceTree = "<group>"; };
+		53595AC6173954E0002CBF6B /* ChoiceViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChoiceViewController.xib; sourceTree = "<group>"; };
 		9F0B624D17358ECB00B2AAE9 /* DMGesturedNavigationController.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DMGesturedNavigationController.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9F0B625017358ECB00B2AAE9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		9F0B625217358ECB00B2AAE9 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -100,6 +105,9 @@
 				53595ABE17392945002CBF6B /* WithinNavigationViewController.h */,
 				53595ABF17392945002CBF6B /* WithinNavigationViewController.m */,
 				9F0B626B17358ECB00B2AAE9 /* ViewController.xib */,
+				53595AC4173954E0002CBF6B /* ChoiceViewController.h */,
+				53595AC5173954E0002CBF6B /* ChoiceViewController.m */,
+				53595AC6173954E0002CBF6B /* ChoiceViewController.xib */,
 				9F0B625717358ECB00B2AAE9 /* Supporting Files */,
 			);
 			name = Example;
@@ -187,6 +195,7 @@
 				9F0B626517358ECB00B2AAE9 /* Default@2x.png in Resources */,
 				9F0B626717358ECB00B2AAE9 /* Default-568h@2x.png in Resources */,
 				9F0B626D17358ECB00B2AAE9 /* ViewController.xib in Resources */,
+				53595AC8173954E0002CBF6B /* ChoiceViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -203,6 +212,7 @@
 				9F0B627617358EEC00B2AAE9 /* DMGesturedNavigationController.m in Sources */,
 				53595AC017392945002CBF6B /* WithinNavigationViewController.m in Sources */,
 				53595AC31739324E002CBF6B /* DMGesturedPageIndicator.m in Sources */,
+				53595AC7173954E0002CBF6B /* ChoiceViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
