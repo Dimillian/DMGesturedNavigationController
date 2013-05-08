@@ -21,6 +21,11 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerStackType) {
     DMGesturedNavigationControllerStackLikeNavigationController
 };
 
+typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
+    DMGesturedNavigationControllerPopAnimationClassic,
+    DMGesturedNavigationControllerPopAnimationNewWay
+};
+
 /**
  DMGesturedChildViewControllerNotifications, you can implement this protocol in your UIViewController subclass
  which are used in a DMGesturedNavigationController. If implemented those methods will be called by 
@@ -81,6 +86,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerStackType) {
 @property (nonatomic, readonly, strong) UINavigationBar *navigationBar;
 @property (nonatomic, strong) UIBarButtonItem *customBackButtonItem;
 @property (nonatomic) DMGesturedNavigationControllerStackType stackType;
+@property (nonatomic) DMGesturedNavigationControllerPopRemoveAnimation popAnimationType;
 /**
  A Boolean value that determines whether the navigation bar is hidden.
  If YES, the navigation bar is hidden. 
@@ -113,7 +119,36 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerStackType) {
  @param viewController the view controller to be pushed.
  @param animated set YES if you want an transition animation.
  */
-- (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated;
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated;
+/**
+ Pushes a view controller onto the receiver’s stack and updates the display.
+ @param viewController the view controller to be pushed.
+ @param animated set YES if you want an transition animation.
+ @param removeInBetweenVC Is you are in a stackType DMGesturedNavigationControllerStackNavigationFree it is 
+ possible that the visible view controller is not the last one the stack.
+ Set YES if you want to remove every view controllers between the new one you wan to push and the visible one
+ Set NO if you don't want to remove in betweeen VC, the passef view controller will be added at the end and displayed.
+ If your stack type is set to DMGesturedNavigationControllerStackLikeNavigationController this parameter will have no 
+ effect
+ */
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated
+removeInBetweenViewControllers:(BOOL)removeInBetweenVC;
+
+/**
+ Insert the passed view controller at the specified offset, preserve the stack in betweee, after and before.
+ */
+- (void)inserViewController:(UIViewController *)viewController
+              atStackOffset:(NSInteger)offset
+                   animated:(BOOL)animated;
+/**
+ Remove the passed view controller (if present) from the stack, navigate to the previous view controller
+ You cannot remove the root view controller
+ */
+- (void)removeViewController:(UIViewController *)viewControlller
+                    animated:(BOOL)animated;
+
 /**
  Pops the top view controller from the navigation stack and updates the display.
  @param animated 
@@ -123,6 +158,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerStackType) {
  will be removed from the stack.
  If your top view controller is the root of the stack this method does nothing
  */
+
 - (void)popViewConrollerAnimated:(BOOL)animated;
 /**
  Pops all the view controllers on the stack except the root view controller and updates the display.

@@ -78,6 +78,22 @@
      */
 }
 
+- (IBAction)onRemove:(id)sender {
+    [self.gesturedNavigationController removeViewController:self animated:YES];
+}
+
+- (IBAction)onInsert:(id)sender {
+    ViewController *controller = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
+    [controller.view setBackgroundColor:[UIColor darkGrayColor]];
+    [self.gesturedNavigationController inserViewController:controller atStackOffset:2 animated:YES];
+}
+
+- (IBAction)onPushNew:(id)sender {
+    ViewController *controller = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
+    [controller.view setBackgroundColor:[UIColor darkGrayColor]];
+    [self.gesturedNavigationController pushViewController:controller animated:YES removeInBetweenViewControllers:NO];
+}
+
 - (IBAction)onPushNewVC:(id)sender {
     ViewController *controller = [[ViewController alloc]initWithNibName:@"ViewController" bundle:nil];
     [controller.view setBackgroundColor:[UIColor darkGrayColor]];

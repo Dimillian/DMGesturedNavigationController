@@ -33,6 +33,18 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 @property (nonatomic, readwrite, strong) UIScrollView *containerScrollView;
 @property (nonatomic, readwrite, strong) UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger currentPage;
+
+- (void)reloadChildViewControllersTryToRebuildStack:(BOOL)rebuildStack;
+- (void)rebuildNavBarStack;
+- (void)pageChanged;
+- (void)pushBack;
+- (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
+- (UIViewController *)viewControllerForPage:(NSInteger)page;
+- (NSInteger)pageForViewController:(UIViewController *)viewController;
+- (NSInteger)currentOffset;
+- (CGRect)rectForViewController:(UIViewController *)viewController;
+- (NSArray *)viewControllers;
+- (void)notifyVisiblesViewController;
 @end
 
 @implementation DMGesturedNavigationController
@@ -49,6 +61,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _navigationBarHidden = NO;
         _animatedNavbarChange = YES;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
+        _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
         // Custom initialization
     }
     return self;
@@ -272,22 +285,88 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 
 #pragma mark - External view controller mess
+- (void)pushViewController:(UIViewController *)viewController
+                  animated:(BOOL)animated
+removeInBetweenViewControllers:(BOOL)removeInBetweenVC
+{
+    [self pushExternalViewController:viewController
+                             animted:animated
+      removeInBetweeenViewController:removeInBetweenVC];
+}
+
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-    NSLog(@"Current page: %d", _currentPage);
-    NSLog(@"Number of controller: %d", _internalViewControllers.count);
-    for (NSInteger i = 0; i <= _internalViewControllers.count - 1; i++) {
-        if (i > self.currentPage) {
-            NSLog(@"Current number: %d", i);
-            UIViewController *controller = [_internalViewControllers objectAtIndex:i];
-            [controller willMoveToParentViewController:nil];
-            [_internalViewControllers removeObject:controller];
-            [controller didMoveToParentViewController:nil];
+    [self pushExternalViewController:viewController
+                             animted:animated
+      removeInBetweeenViewController:YES];
+}
+
+- (void)pushExternalViewController:(UIViewController *)viewController
+                           animted:(BOOL)animated
+    removeInBetweeenViewController:(BOOL)removeInBetweeenVC
+{
+    if (removeInBetweeenVC) {
+        for (NSInteger i = 0; i <= _internalViewControllers.count - 1; i++) {
+            if (i > self.currentPage) {
+                NSLog(@"Current number: %d", i);
+                UIViewController *controller = [_internalViewControllers objectAtIndex:i];
+                [controller willMoveToParentViewController:nil];
+                [controller removeFromParentViewController];
+                [controller.view removeFromSuperview];
+                [_internalViewControllers removeObject:controller];
+                [controller didMoveToParentViewController:nil];
+                i--;   
+            }
         }
     }
     [_internalViewControllers addObject:viewController];
     [self reloadChildViewControllersTryToRebuildStack:NO];
     [self scrollToPage:_internalViewControllers.count - 1 animated:animated];
+}
+
+- (void)inserViewController:(UIViewController *)viewController
+              atStackOffset:(NSInteger)offset
+                   animated:(BOOL)animated
+{
+    if (offset > _internalViewControllers.count - 1) {
+        offset = 1;
+    }
+    [_internalViewControllers insertObject:viewController atIndex:offset];
+    [self reloadChildViewControllersTryToRebuildStack:YES];
+    [self scrollToPage:offset animated:animated];
+}
+
+- (void)removeViewController:(UIViewController *)viewControlller
+                    animated:(BOOL)animated
+{
+    NSAssert([self containViewController:viewControlller],
+             @"The passed view controller is not in the hierarchy");
+    NSAssert([self pageForViewController:viewControlller] > 0,
+             @"You cannot remove the root view controller");
+    [viewControlller willMoveToParentViewController:nil];
+    if (_currentPage == [self pageForViewController:viewControlller]) {
+        [self scrollToPage:_currentPage - 1 animated:YES];
+    }
+    if (self.popAnimationType == DMGesturedNavigationControllerPopAnimationNewWay) {
+        [UIView animateWithDuration:0.30 animations:^{
+            CGAffineTransform xForm = viewControlller.view.transform;
+            viewControlller.view.transform = CGAffineTransformScale(xForm, 0.50, 0.50);
+        }completion:^(BOOL finished) {
+            [viewControlller.view removeFromSuperview];
+            [viewControlller removeFromParentViewController];
+            [_internalViewControllers removeObject:viewControlller];
+            [viewControlller didMoveToParentViewController:nil];
+            [self reloadChildViewControllersTryToRebuildStack:NO];
+        }];
+    }
+    else{
+        [viewControlller.view removeFromSuperview];
+        [viewControlller removeFromParentViewController];
+        [_internalViewControllers removeObject:viewControlller];
+        [viewControlller didMoveToParentViewController:nil];
+        [self reloadChildViewControllersTryToRebuildStack:YES];
+    }
+   
 }
 
 - (void)popToRootViewControllerAnimated:(BOOL)animated
@@ -297,8 +376,15 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)popViewConrollerAnimated:(BOOL)animated
 {
-    if (_currentPage >= 1) {
-        [self scrollToPage:self.currentPage - 1 animated:animated];   
+    if (self.stackType == DMGesturedNavigationControllerStackLikeNavigationController &&
+        self.popAnimationType == DMGesturedNavigationControllerPopAnimationNewWay) {
+        UIViewController *vcToRemove = [_internalViewControllers objectAtIndex:_currentPage];
+        [self removeViewController:vcToRemove animated:YES];
+    }
+    else{
+        if (_currentPage >= 1) {
+            [self scrollToPage:self.currentPage - 1 animated:animated];
+        }
     }
 }
 

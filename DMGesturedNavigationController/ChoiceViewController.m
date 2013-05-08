@@ -68,6 +68,7 @@
     [container setAnimatedNavbarChange:YES];
     [container setStackType:DMGesturedNavigationControllerStackLikeNavigationController];
     [navigation setNavigationBarHidden:YES animated:NO];
+    [container setPopAnimationType:DMGesturedNavigationControllerPopAnimationClassic];
     [self presentViewController:navigation animated:YES completion:^{
         
     }];
