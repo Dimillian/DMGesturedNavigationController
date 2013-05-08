@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "DMGesturedNavigationController.h"
 
-@interface ViewController : UIViewController <DMGesturedChildViewController>
+@interface ViewController : UIViewController <DMGesturedChildViewControllerNotifications>
 - (IBAction)onPushNewVC:(id)sender;
 - (IBAction)pushVC:(id)sender;
 @property (weak, nonatomic) IBOutlet UIButton *pushNewVC;

@@ -36,14 +36,46 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void)didBecomeActive
+- (void)childViewControllerdidBecomeActive
 {
-
+    NSLog(@"View Controller %d: Became active", [self stackOffset]);
 }
 
-- (void)didResignActive
+- (void)childViewControllerdidResignActive
 {
+    NSLog(@"View Controller %d: Resigned active", [self stackOffset]);
+}
 
+- (void)childViewControllerdidShow
+{
+    NSLog(@"View Controller %d: Did show", [self stackOffset]);
+        self.title = [NSString stringWithFormat:@"VC: %d", [self stackOffset]];
+}
+
+- (void)childViewControllerdidHide
+{
+    NSLog(@"View Controller %d: Became active", [self stackOffset]);
+}
+
+- (void)childViewControllerCouldBecomeActive
+{
+      NSLog(@"View Controller %d: Could become active", [self stackOffset]);
+    //Good idea to customize transition
+    /*
+    [UIView animateWithDuration:0.30 animations:^{
+        [self.view setAlpha:1.0];
+    }];
+     */
+}
+
+- (void)childViewControllerCouldBecomeInactive
+{
+    NSLog(@"View Controller %d: Could become innactive", [self stackOffset]);
+    /*
+    [UIView animateWithDuration:0.30 animations:^{
+        [self.view setAlpha:0.50];
+    }];
+     */
 }
 
 - (IBAction)onPushNewVC:(id)sender {

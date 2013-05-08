@@ -8,7 +8,16 @@
 
 #import "DMGesturedNavigationController.h"
 #import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
+#import <objc/message.h>
 
+static char kVisible;
+static char kActive;
+
+@interface UIViewController (UIViewControllerGesturedNavigationControllerPrivate)
+@property (nonatomic, readwrite, getter = isVisible) BOOL visible;
+@property (nonatomic, readwrite, getter = isActive) BOOL active;
+@end
 
 const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
@@ -16,7 +25,8 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     NSMutableArray *_internalViewControllers;
     NSInteger _previousPage;
-    UIViewController *_tmpViewController;
+    UIViewController *_tmpStackedViewController;
+    UIViewController *_tmpPreviousViewController;
 }
 
 @property (nonatomic, readwrite, strong) UIViewController *visibleViewController;
@@ -30,6 +40,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 @dynamic allowSideBoucing;
 @dynamic allowSwipeTransition;
 
+#pragma mark - Init stuff
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
@@ -37,7 +48,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _internalViewControllers = [[NSMutableArray alloc]init];
         _navigationBarHidden = NO;
         _animatedNavbarChange = YES;
-        _preserveStack = YES;
+        _stackType = DMGesturedNavigationControllerStackNavigationFree;
         // Custom initialization
     }
     return self;
@@ -61,6 +72,8 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     return self;
 }
 
+#pragma mark - View stuff
+
 - (void)loadView
 {
     [super loadView];
@@ -73,16 +86,24 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
     [self.view addSubview:self.navigationBar];
-    [self reloadChildViewControllers];
+    [self reloadChildViewControllersTryToRebuildStack:YES];
     _currentPage = 0;
     _previousPage = 0;
-    UIViewController *controller = [_internalViewControllers objectAtIndex:0];
-    [self.navigationBar pushNavigationItem:controller.navigationItem animated:YES];
 }
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    UIViewController *controller = [_internalViewControllers objectAtIndex:_currentPage];
+    [self.navigationBar pushNavigationItem:controller.navigationItem animated:YES];
+    controller.active = YES;
+    controller.visible = YES;
+    if ([controller respondsToSelector:@selector(childViewControllerdidShow)]) {
+        [controller performSelector:@selector(childViewControllerdidShow)];
+    }
+    if ([controller respondsToSelector:@selector(childViewControllerdidBecomeActive)]) {
+        [controller performSelector:@selector(childViewControllerdidBecomeActive)];
+    }
 	// Do any additional setup after loading the view.
 }
 
@@ -127,8 +148,9 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     }
 }
 
+
 #pragma mark - intenral mess
-- (void)reloadChildViewControllers
+- (void)reloadChildViewControllersTryToRebuildStack:(BOOL)rebuildStack
 {
     for (UIViewController *viewController in _internalViewControllers) {
         [viewController willMoveToParentViewController:nil];
@@ -152,6 +174,23 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         [viewController didMoveToParentViewController:self];
     }
     self.containerScrollView.contentSize = CGSizeMake(self.containerScrollView.frame.size.width * [_internalViewControllers count], 1);
+    if (rebuildStack) {
+        UINavigationItem *item = [self.navigationBar.items lastObject];
+        UIViewController *current = [_internalViewControllers objectAtIndex:_currentPage];
+        if ([item isEqual:current.navigationItem]) {
+            [self rebuildNavBarStack];
+        }
+    }
+}
+
+- (void)rebuildNavBarStack
+{
+    NSMutableArray *items = [[NSMutableArray alloc]initWithCapacity:_internalViewControllers.count];
+    for (UIViewController *controller in _internalViewControllers) {
+        [controller.navigationItem setHidesBackButton:YES];
+        [items addObject:controller.navigationItem];
+    }
+    [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:YES];
 }
 
 - (void)pageChanged
@@ -159,16 +198,16 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     UIViewController *current = [self visibleViewController];
     [current viewDidAppear:YES];
     UIViewController *previousInStack = current.previousViewController;
-    UIViewController *realPrevious = [self viewControllerForPage:_previousPage];
+    _tmpPreviousViewController = [_internalViewControllers objectAtIndex:_previousPage];
+    if ([_tmpPreviousViewController respondsToSelector:@selector(childViewControllerCouldBecomeInactive)]) {
+        [_tmpPreviousViewController performSelector:@selector(childViewControllerCouldBecomeInactive)];
+    }
+    if ([current respondsToSelector:@selector(childViewControllerCouldBecomeActive)]) {
+        [current performSelector:@selector(childViewControllerCouldBecomeActive)];
+    }
     NSString *title = @"Back";
     if (previousInStack.title) {
         title = previousInStack.title;
-    }
-    if ([current respondsToSelector:@selector(didBecomeActive)]) {
-        [current performSelector:@selector(didBecomeActive)];
-    }
-    if ([realPrevious respondsToSelector:@selector(didResignActive)]) {
-        [realPrevious performSelector:@selector(didResignActive)];
     }
     if (self.currentPage != 0) {
         UINavigationItem *newItem = current.navigationItem;
@@ -188,21 +227,16 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         newItem.leftBarButtonItem = item;
         if (self.currentPage < _previousPage) {
             [self.navigationBar popNavigationItemAnimated:self.isAnimatedNavbarChange];
-            _tmpViewController = [self viewControllerForPage:_previousPage];
+            _tmpStackedViewController = [self viewControllerForPage:_previousPage];
         }
         else{
-            _tmpViewController = nil;
+            _tmpStackedViewController = nil;
             [self.navigationBar pushNavigationItem:newItem animated:self.isAnimatedNavbarChange];
         }
     }
     else{
-        NSMutableArray *items = [[NSMutableArray alloc]initWithCapacity:_internalViewControllers.count];
-        for (UIViewController *controller in _internalViewControllers) {
-            [controller.navigationItem setHidesBackButton:YES];
-            [items addObject:controller.navigationItem];
-        }
-        [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:YES];
-        _tmpViewController = [self viewControllerForPage:_previousPage];
+        [self rebuildNavBarStack];
+        _tmpStackedViewController = [self viewControllerForPage:_previousPage];
     }
     _previousPage = self.currentPage;
 }
@@ -214,18 +248,24 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
 {
-    [self.containerScrollView setContentOffset:CGPointMake(self.view.frame.size.width * page, 0.0f) animated:animated];
+    [self.containerScrollView
+     setContentOffset:CGPointMake(self.view.frame.size.width * page, 0.0f)
+     animated:animated];
 }
 
 
 - (UIViewController *)viewControllerForPage:(NSInteger)page
 {
+    NSAssert([_internalViewControllers count] > page,
+             @"Requested controller is out of bound");
     return [_internalViewControllers objectAtIndex:page];
 }
 
 
 - (NSInteger)pageForViewController:(UIViewController *)viewController
 {
+    NSAssert([_internalViewControllers containsObject:viewController],
+             @"Passed view controller is not a child or in the hierarchy of DMGesturesNavigationController");
     return [_internalViewControllers indexOfObject:viewController];
 }
 
@@ -245,7 +285,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         }
     }
     [_internalViewControllers addObject:viewController];
-    [self reloadChildViewControllers];
+    [self reloadChildViewControllersTryToRebuildStack:NO];
     [self scrollToPage:_internalViewControllers.count - 1 animated:animated];
 }
 
@@ -256,11 +296,15 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)popViewConrollerAnimated:(BOOL)animated
 {
-    [self scrollToPage:self.currentPage - 1 animated:animated];
+    if (_currentPage >= 1) {
+        [self scrollToPage:self.currentPage - 1 animated:animated];   
+    }
 }
 
 - (void)navigateToViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
+    NSAssert([_internalViewControllers containsObject:viewController],
+             @"Passed view controller is not a child or in the hierarchy of DMGesturesNavigationController");
     NSInteger page = [_internalViewControllers indexOfObject:viewController];
     [self scrollToPage:page animated:animated];
 }
@@ -273,6 +317,11 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (UIViewController *)topViewController
 {
     return [_internalViewControllers objectAtIndex:0];
+}
+
+- (BOOL)containViewController:(UIViewController *)viewController
+{
+    return [_internalViewControllers containsObject:viewController];
 }
          
 #pragma mark - getters & setters
@@ -317,6 +366,9 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)setViewControllers:(NSArray *)viewControllers
 {
     _internalViewControllers = [NSArray arrayWithArray:viewControllers];
+    _currentPage = 0;
+    _previousPage = 0;
+    [self reloadChildViewControllersTryToRebuildStack:YES];
 }
 
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated
@@ -363,9 +415,32 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 }
 
 #pragma mark - ScrollView
+- (void)notifyVisiblesViewController
+{
+    for (UIViewController *controller in _internalViewControllers) {
+        BOOL intersect = CGRectIntersectsRect(self.containerScrollView.bounds, controller.view.frame);
+        if (intersect) {
+            if (!controller.isVisible) {
+                controller.visible = YES;
+                if ([controller respondsToSelector:@selector(childViewControllerdidShow)]) {
+                    [controller performSelector:@selector(childViewControllerdidShow)];
+                }
+            }
+        }
+        else{
+            if (controller.isVisible) {
+                if ([controller respondsToSelector:@selector(childViewControllerdidHide)]) {
+                    [controller performSelector:@selector(childViewControllerdidHide)];
+                }
+            }
+            controller.visible = NO;
+        }
+    }
+}
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
+    [self notifyVisiblesViewController];
     NSInteger newOffset = [self currentOffset];
     if (newOffset != _currentPage) {
         self.currentPage = newOffset;
@@ -377,14 +452,26 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
-    if (_tmpViewController && !self.isPreserveStack) {
-        [_tmpViewController willMoveToParentViewController:nil];
-        [_tmpViewController.view removeFromSuperview];
-        [_internalViewControllers removeObject:_tmpViewController];
-        [_tmpViewController didMoveToParentViewController:nil];
-        _tmpViewController = nil;
-        [self reloadChildViewControllers];
+    UIViewController *current = [self visibleViewController];    
+    if ([current respondsToSelector:@selector(childViewControllerdidBecomeActive)]) {
+        [current performSelector:@selector(childViewControllerdidBecomeActive)];
+        current.active = YES;
     }
+    if ([_tmpPreviousViewController respondsToSelector:@selector(childViewControllerdidResignActive)]) {
+        [_tmpPreviousViewController performSelector:@selector(childViewControllerdidResignActive)];
+        _tmpPreviousViewController.active = NO;
+    }
+    
+    if (_tmpStackedViewController &&
+        self.stackType == DMGesturedNavigationControllerStackLikeNavigationController) {
+        [_tmpStackedViewController willMoveToParentViewController:nil];
+        [_tmpStackedViewController.view removeFromSuperview];
+        [_internalViewControllers removeObject:_tmpStackedViewController];
+        [_tmpStackedViewController didMoveToParentViewController:nil];
+        _tmpStackedViewController = nil;
+        [self reloadChildViewControllersTryToRebuildStack:NO];
+    }
+    
 }
 
 #pragma mark - Memory warning
@@ -396,7 +483,49 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 @end
 
+#pragma mark - Categories implementations
+@implementation UIViewController (UIViewControllerGesturedNavigationControllerPrivate)
+@dynamic visible;
+@dynamic active;
+
+- (void)setVisible:(BOOL)visible
+{
+    objc_setAssociatedObject(self,
+                             &kVisible,
+                             [NSNumber numberWithBool:visible],
+                             OBJC_ASSOCIATION_RETAIN);
+}
+
+- (void)setActive:(BOOL)active
+{
+    objc_setAssociatedObject(self,
+                             &kVisible,
+                             [NSNumber numberWithBool:active],
+                             OBJC_ASSOCIATION_RETAIN);
+}
+
+@end
+
 @implementation UIViewController (UIViewControllerGesturedNavigationController)
+@dynamic previousViewController;
+@dynamic nextViewController;
+@dynamic gesturedNavigationController;
+@dynamic visible;
+@dynamic active;
+@dynamic stackOffset;
+
+- (BOOL)isVisible
+{
+    NSNumber *result = objc_getAssociatedObject(self, &kVisible);
+    return result.boolValue;
+}
+
+- (BOOL)isActive
+{
+    NSNumber *result = objc_getAssociatedObject(self, &kActive);
+    return result.boolValue;
+}
+
 
 - (DMGesturedNavigationController *)gesturedNavigationController
 {
@@ -423,7 +552,16 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     return nil;
 }
 
-- (void)setActive
+- (NSInteger)stackOffset
+{
+    if ([self.gesturedNavigationController containViewController:self]) {
+        return [self.gesturedNavigationController pageForViewController:self];
+    }
+    return 0;
+
+}
+
+- (void)pushViewControllerToSelf
 {
     [self.gesturedNavigationController navigateToViewController:self animated:YES];
 }

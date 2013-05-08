@@ -42,16 +42,12 @@
     
     ViewController *controller1 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     [controller1.view setBackgroundColor:[UIColor blueColor]];
-    controller1.title = @"First";
     ViewController *controller2 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     [controller2.view setBackgroundColor:[UIColor redColor]];
-    controller2.title = @"Second";
     ViewController *controller3 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     [controller3.view setBackgroundColor:[UIColor greenColor]];
-    controller3.title = @"Third";
     ViewController *controller4 = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
     [controller4.view setBackgroundColor:[UIColor orangeColor]];
-    controller4.title = @"Fourfth";
     DMGesturedNavigationController *container = [[DMGesturedNavigationController alloc]initWithViewControllers:@[controller1, controller2, controller3, controller4]];
     UINavigationController *navigation = [[UINavigationController alloc]initWithRootViewController:container];
     [container.view setBackgroundColor:[UIColor scrollViewTexturedBackgroundColor]];
@@ -70,7 +66,7 @@
     UINavigationController *navigation = [[UINavigationController alloc]initWithRootViewController:container];
     [container.view setBackgroundColor:[UIColor scrollViewTexturedBackgroundColor]];
     [container setAnimatedNavbarChange:YES];
-    [container setPreserveStack:NO];
+    [container setStackType:DMGesturedNavigationControllerStackLikeNavigationController];
     [navigation setNavigationBarHidden:YES animated:NO];
     [self presentViewController:navigation animated:YES completion:^{
         
