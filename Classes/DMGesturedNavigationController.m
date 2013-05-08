@@ -190,7 +190,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         [controller.navigationItem setHidesBackButton:YES];
         [items addObject:controller.navigationItem];
     }
-    [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:YES];
+    [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:self.isAnimatedNavbarChange];
 }
 
 - (void)pageChanged
@@ -248,6 +248,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
 {
+    [self setAnimatedNavbarChange:animated];
     [self.containerScrollView
      setContentOffset:CGPointMake(self.view.frame.size.width * page, 0.0f)
      animated:animated];
