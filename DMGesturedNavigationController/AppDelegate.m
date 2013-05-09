@@ -21,7 +21,7 @@
     ChoiceViewController *choiceVC = [[ChoiceViewController alloc]initWithNibName:@"ChoiceViewController" bundle:nil];
     // Override point for customization after application launch.
     self.window.rootViewController = choiceVC;
-    [self.window makeKeyAndVisible];
+    [self.window makeKeyAndVisible];    
     return YES;
 }
 

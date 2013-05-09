@@ -39,6 +39,9 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)pageChanged;
 - (void)pushBack;
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
+- (void)pushExternalViewController:(UIViewController *)viewController
+                           animted:(BOOL)animated
+    removeInBetweeenViewController:(BOOL)removeInBetweeenVC;
 - (UIViewController *)viewControllerForPage:(NSInteger)page;
 - (NSInteger)pageForViewController:(UIViewController *)viewController;
 - (NSInteger)currentOffset;
@@ -108,7 +111,7 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     [super viewDidLoad];
     UIViewController *controller = [_internalViewControllers objectAtIndex:_currentPage];
-    [self.navigationBar pushNavigationItem:controller.navigationItem animated:YES];
+    [self.navigationBar pushNavigationItem:controller.navigationItem animated:self.isAnimatedNavbarChange];
     controller.active = YES;
     controller.visible = YES;
     if ([controller respondsToSelector:@selector(childViewControllerdidShow)]) {
@@ -224,20 +227,25 @@ const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     }
     if (self.currentPage != 0) {
         UINavigationItem *newItem = current.navigationItem;
-        [newItem setHidesBackButton:YES];
-        UIBarButtonItem *item;
-        if (_customBackButtonItem) {
-            _customBackButtonItem.title = previousInStack.title;
-            item = _customBackButtonItem;
+        if (current.navigationItem.leftBarButtonItem) {
+            newItem.leftBarButtonItem = current.navigationItem.leftBarButtonItem;
         }
         else{
-            item = [[UIBarButtonItem alloc]initWithTitle:title
-                                                   style:UIBarButtonItemStyleBordered
-                                                  target:self
-                                                  action:@selector(pushBack)];
+            [newItem setHidesBackButton:YES];
+            UIBarButtonItem *item;
+            if (_customBackButtonItem) {
+                _customBackButtonItem.title = previousInStack.title;
+                item = _customBackButtonItem;
+            }
+            else{
+                item = [[UIBarButtonItem alloc]initWithTitle:title
+                                                       style:UIBarButtonItemStyleBordered
+                                                      target:self
+                                                      action:@selector(pushBack)];
+            }
+            
+            newItem.leftBarButtonItem = item;
         }
-
-        newItem.leftBarButtonItem = item;
         if (self.currentPage < _previousPage) {
             [self.navigationBar popNavigationItemAnimated:self.isAnimatedNavbarChange];
             _tmpStackedViewController = [self viewControllerForPage:_previousPage];
@@ -308,7 +316,6 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     if (removeInBetweeenVC) {
         for (NSInteger i = 0; i <= _internalViewControllers.count - 1; i++) {
             if (i > self.currentPage) {
-                NSLog(@"Current number: %d", i);
                 UIViewController *controller = [_internalViewControllers objectAtIndex:i];
                 [controller willMoveToParentViewController:nil];
                 [controller removeFromParentViewController];
@@ -616,12 +623,23 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 
 - (DMGesturedNavigationController *)gesturedNavigationController
 {
-    return (DMGesturedNavigationController *)self.parentViewController;
+    
+    if([self.parentViewController isKindOfClass:[DMGesturedNavigationController class]]){
+        return (DMGesturedNavigationController*)self.parentViewController;
+    }
+    else if([self.parentViewController isKindOfClass:[UINavigationController class]] &&
+            [self.parentViewController.parentViewController isKindOfClass:[DMGesturedNavigationController class]]){
+        return (DMGesturedNavigationController*)[self.parentViewController parentViewController];
+    }
+    else{
+        return nil;
+    }
+
 }
 
 - (UIViewController *)previousViewController
 {
-    DMGesturedNavigationController *parent = (DMGesturedNavigationController *)self.parentViewController;
+    DMGesturedNavigationController *parent = self.gesturedNavigationController;
     NSInteger currentPage = [parent pageForViewController:self];
     if (currentPage != 0 && parent.viewControllers.count > 1) {
         return [parent viewControllerForPage:currentPage - 1];
@@ -631,7 +649,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 
 - (UIViewController *)nextViewController
 {
-    DMGesturedNavigationController *parent = (DMGesturedNavigationController *)self.parentViewController;
+    DMGesturedNavigationController *parent = self.gesturedNavigationController;
     NSInteger currentPage = [parent pageForViewController:self];
     if (parent.viewControllers.count > currentPage + 1) {
         return [parent viewControllerForPage:currentPage + 1];

@@ -21,6 +21,10 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerStackType) {
     DMGesturedNavigationControllerStackLikeNavigationController
 };
 
+/**
+ Animation to use when you pop or delete a UIViewController 
+ By default it use the a new custom animation, but you can set it to the classic one
+ */
 typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
     DMGesturedNavigationControllerPopAnimationClassic,
     DMGesturedNavigationControllerPopAnimationNewWay
@@ -84,6 +88,12 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  The navigation bar managed by the gestured navigation controller.
  */
 @property (nonatomic, readonly, strong) UINavigationBar *navigationBar;
+/**
+ If you set this property to a UIBarButtonItem it will be used as a back button, the action and target
+ will be set iternally you can leave them to nil
+ You can also implement a UILeftBarButtonItem in your UIViewController navigation item, in this case
+ no back bar button item will be provided. 
+ */
 @property (nonatomic, strong) UIBarButtonItem *customBackButtonItem;
 @property (nonatomic) DMGesturedNavigationControllerStackType stackType;
 @property (nonatomic) DMGesturedNavigationControllerPopRemoveAnimation popAnimationType;
