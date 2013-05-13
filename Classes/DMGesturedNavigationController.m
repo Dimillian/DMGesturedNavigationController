@@ -19,7 +19,7 @@ static char kActive;
 @property (nonatomic, readwrite, getter = isActive) BOOL active;
 @end
 
-const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
+static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 @interface DMGesturedNavigationController ()
 {
