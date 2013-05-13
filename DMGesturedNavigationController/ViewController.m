@@ -78,6 +78,11 @@
      */
 }
 
+- (void)childViewControllerVisiblePartDidChange:(NSNumber *)visiblePartWidth
+{
+    NSLog(@"View controller %d: Visible width %f", [self stackOffset], visiblePartWidth.floatValue );
+}
+
 - (IBAction)onRemove:(id)sender {
     [self.gesturedNavigationController removeViewController:self animated:YES];
 }

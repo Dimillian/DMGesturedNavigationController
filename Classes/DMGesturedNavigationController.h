@@ -11,7 +11,7 @@
 /**
  Type of stack available
  DMGesturedNavigationControllerStackNavigationFree The user can freely go back and forth in the stack, 
- child view controller will never be removed from the stack, only when you push a new one
+ child view controller will never be removed from the stack, only when you push a new one with the flag
  DMGesturedNavigationControllerStackLikeNavigationController The stack will work like a standard
  UINavigationController, once the user go back in the stack, the last child view controller displayed
  will be removed from the hierarchy (and released)
@@ -48,12 +48,12 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
 - (void)childViewControllerdidHide;
 /**
  Called when your view controller become active. An active state is when the user effectively ended the 
- swipe transition gesture and that the animation is done.
+ swipe transition gesture and transition animations are done.
  */
 - (void)childViewControllerdidBecomeActive;
 /**
  Called when your view controller become innactive. An innactive state your when the view controller is not visile
- anymore and that gesture and animation are ended.
+ anymore and that gesture and transition animations are ended.
  */
 - (void)childViewControllerdidResignActive;
 /** 
@@ -66,12 +66,18 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  Don't assume that it will the next innactive one.
  */
 - (void)childViewControllerCouldBecomeInactive;
+/**
+ Called when a view controller move. Provide you the actual visible width float value wrapped in an NSNumber
+ It is not called if the view controller is not visible
+ For example, on an iPhone, if your view controller is full screen, this valus can vary from 0.0 to 320.0.
+ */
+- (void)childViewControllerVisiblePartDidChange:(NSNumber *)visiblePartWidth;
 @end
 
 @interface DMGesturedNavigationController : UIViewController <UIScrollViewDelegate>
 
 /**
- Child view controllers, can be swapped at any time by settign this property to a new value.
+ Child view controllers can be swapped at any time by setting this property to a new value.
  The view controllers currently on the navigation stack.
  The root view controller is at index 0 in the array, the back view controller is at index n-2, and the top controller is at index n-1, where n is the number of items in the array.
  */
@@ -95,7 +101,13 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  no back bar button item will be provided. 
  */
 @property (nonatomic, strong) UIBarButtonItem *customBackButtonItem;
+/**
+ The stack type, refer to DMGesturedNavigationControllerStackType enum for detail
+ */
 @property (nonatomic) DMGesturedNavigationControllerStackType stackType;
+/**
+ The pop animation, refer to DMGesturedNavigationControllerPopRemoveAnimation enum for detail
+ */
 @property (nonatomic) DMGesturedNavigationControllerPopRemoveAnimation popAnimationType;
 /**
  A Boolean value that determines whether the navigation bar is hidden.
@@ -110,13 +122,15 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 @property (nonatomic, getter = isAllowSideBouncing) BOOL allowSideBoucing;
 /*
- Set tp NO if you want to disable the primary feature of this class and be left with a buggy
+ Set to NO if you want to disable the primary feature of this class and be left with a buggy
  UINavigationController implementation :) .
  Default value is YES.
  */
 @property (nonatomic, getter = isAllowSwipeTransition) BOOL allowSwipeTransition;
 /*
  Set to NO if you don't want to animate the UINavigationItem pop and push of the navigation bar.
+ You might set it to NO before doing instensive modification of the stack which could lead to a break
+ of the UINavigationBar stack. DMGesturedNavigationController will alway try to rebuild it if corrupted.
  Default value is YES.
  */
 @property (nonatomic, getter = isAnimatedNavbarChange) BOOL animatedNavbarChange;
@@ -126,6 +140,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
 
 /**
  Pushes a view controller onto the receiver’s stack and updates the display.
+ Remove every view controllers between the current one and the newly pushed one.
  @param viewController the view controller to be pushed.
  @param animated set YES if you want an transition animation.
  */

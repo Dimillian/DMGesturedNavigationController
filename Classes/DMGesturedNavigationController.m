@@ -102,7 +102,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
     [self.view addSubview:self.navigationBar];
-    [self reloadChildViewControllersTryToRebuildStack:YES];
+    [self reloadChildViewControllersTryToRebuildStack:NO];
     _currentPage = 0;
     _previousPage = 0;
 }
@@ -191,22 +191,22 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     }
     self.containerScrollView.contentSize = CGSizeMake(self.containerScrollView.frame.size.width * [_internalViewControllers count], 1);
     if (rebuildStack) {
-        UINavigationItem *item = [self.navigationBar.items lastObject];
-        UIViewController *current = [_internalViewControllers objectAtIndex:_currentPage];
-        if ([item isEqual:current.navigationItem]) {
-            [self rebuildNavBarStack];
-        }
+        [self rebuildNavBarStack];
     }
 }
 
 - (void)rebuildNavBarStack
 {
-    NSMutableArray *items = [[NSMutableArray alloc]initWithCapacity:_internalViewControllers.count];
+    NSMutableArray *items = [[NSMutableArray alloc]init];
     for (UIViewController *controller in _internalViewControllers) {
         [controller.navigationItem setHidesBackButton:YES];
         [items addObject:controller.navigationItem];
+        NSUInteger index = [_internalViewControllers indexOfObject:controller];
+        if (index == _currentPage) {
+            break;
+        }
     }
-    [self.navigationBar setItems:[[items reverseObjectEnumerator]allObjects] animated:self.isAnimatedNavbarChange];
+    [self.navigationBar setItems:items animated:self.isAnimatedNavbarChange];
 }
 
 - (void)pageChanged
@@ -269,7 +269,6 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
 {
-    [self setAnimatedNavbarChange:animated];
     [self.containerScrollView
      setContentOffset:CGPointMake(self.view.frame.size.width * page, 0.0f)
      animated:animated];
@@ -327,7 +326,12 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         }
     }
     [_internalViewControllers addObject:viewController];
-    [self reloadChildViewControllersTryToRebuildStack:NO];
+    if (removeInBetweeenVC) {
+        [self reloadChildViewControllersTryToRebuildStack:NO];   
+    }
+    else{
+        [self reloadChildViewControllersTryToRebuildStack:YES];
+    }
     [self scrollToPage:_internalViewControllers.count - 1 animated:animated];
 }
 
@@ -514,6 +518,12 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     for (UIViewController *controller in _internalViewControllers) {
         BOOL intersect = CGRectIntersectsRect(self.containerScrollView.bounds, controller.view.frame);
         if (intersect) {
+            if ([controller respondsToSelector:@selector(childViewControllerVisiblePartDidChange:)]) {
+                CGRect visibleFrame = CGRectIntersection(self.containerScrollView.bounds,
+                                                         controller.view.frame);
+                [controller performSelector:@selector(childViewControllerVisiblePartDidChange:)
+                                 withObject:[NSNumber numberWithFloat:visibleFrame.size.width]];
+            }
             if (!controller.isVisible) {
                 controller.visible = YES;
                 if ([controller respondsToSelector:@selector(childViewControllerdidShow)]) {
@@ -563,8 +573,9 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         [_internalViewControllers removeObject:_tmpStackedViewController];
         [_tmpStackedViewController didMoveToParentViewController:nil];
         _tmpStackedViewController = nil;
-        [self reloadChildViewControllersTryToRebuildStack:NO];
+        [self reloadChildViewControllersTryToRebuildStack:YES];
     }
+    [self rebuildNavBarStack];
     
 }
 
