@@ -63,6 +63,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _internalViewControllers = [[NSMutableArray alloc]init];
         _navigationBarHidden = NO;
         _animatedNavbarChange = YES;
+        _displayEdgeShadow = YES;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
         // Custom initialization
@@ -99,8 +100,11 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.containerScrollView setBackgroundColor:[UIColor clearColor]];
     [self.containerScrollView setShowsHorizontalScrollIndicator:NO];
     [self.containerScrollView setShowsVerticalScrollIndicator:YES];
+    [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
+     UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
+    [self.navigationBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.navigationBar];
     [self reloadChildViewControllersTryToRebuildStack:NO];
     _currentPage = 0;
@@ -189,9 +193,29 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         [self.containerScrollView addSubview:viewController.view];
         [viewController didMoveToParentViewController:self];
     }
+    
     self.containerScrollView.contentSize = CGSizeMake(self.containerScrollView.frame.size.width * [_internalViewControllers count], 1);
     if (rebuildStack) {
         [self rebuildNavBarStack];
+    }
+    if (self.isDisplayEdgeShadow) {
+        for (UIViewController *viewController in _internalViewControllers) {
+            CGRect shadowFrame = viewController.view.layer.bounds;
+            CALayer *layer = viewController.view.layer;
+            layer.shadowOffset = CGSizeMake(0, 0);
+            if ([_internalViewControllers indexOfObject:viewController] == 0) {
+                layer.shadowOpacity = .5f;
+                shadowFrame.origin.x -= 3.0;
+            }
+            else if ([_internalViewControllers indexOfObject:viewController] == _internalViewControllers.count - 1) {
+                layer.shadowOpacity = .5f;
+                shadowFrame.origin.x += 5.0;
+            }
+            else{
+                layer.shadowOpacity = 0.0f;
+            }
+            layer.shadowPath = [UIBezierPath bezierPathWithRect:shadowFrame].CGPath;
+        }
     }
 }
 
@@ -424,6 +448,12 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
          
 #pragma mark - getters & setters
 
+- (void)setDisplayEdgeShadow:(BOOL)displayEdgeShadow
+{
+    _displayEdgeShadow = displayEdgeShadow;
+    [self reloadChildViewControllersTryToRebuildStack:NO];
+}
+
 - (BOOL)isAllowSideBoucing
 {
     return [self.containerScrollView bounces];
@@ -578,6 +608,14 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     [self rebuildNavBarStack];
     
 }
+
+#pragma mark - Rotation
+
+- (void)willAnimateRotationToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self reloadChildViewControllersTryToRebuildStack:YES];
+}
+
 
 #pragma mark - Memory warning
 - (void)didReceiveMemoryWarning

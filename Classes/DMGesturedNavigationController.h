@@ -135,6 +135,13 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 @property (nonatomic, getter = isAnimatedNavbarChange) BOOL animatedNavbarChange;
 
+/*
+ Set to NO if you don't want shadow for the first and the last view controller when the user can scroll the view
+ over the edge
+ Default value is YES.
+ */
+@property (nonatomic, getter = isDisplayEdgeShadow) BOOL displayEdgeShadow;
+
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 - (id)initWithViewControllers:(NSArray *)viewControllers;
 
