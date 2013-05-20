@@ -251,8 +251,13 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     }
     if (self.currentPage != 0) {
         UINavigationItem *newItem = current.navigationItem;
-        if (current.navigationItem.leftBarButtonItem) {
-            newItem.leftBarButtonItem = current.navigationItem.leftBarButtonItem;
+        if (current.navigationItem.leftBarButtonItem || current.navigationItem.leftBarButtonItems) {
+            if (current.navigationItem.leftBarButtonItems.count > 0) {
+                newItem.leftBarButtonItems = current.navigationItem.leftBarButtonItems;
+            }
+            else{
+                newItem.leftBarButtonItem = current.navigationItem.leftBarButtonItem;
+            }
         }
         else{
             [newItem setHidesBackButton:YES];
