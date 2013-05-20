@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		53595AC017392945002CBF6B /* WithinNavigationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595ABF17392945002CBF6B /* WithinNavigationViewController.m */; };
-		53595AC31739324E002CBF6B /* DMGesturedPageIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595AC21739324E002CBF6B /* DMGesturedPageIndicator.m */; };
 		53595AC7173954E0002CBF6B /* ChoiceViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 53595AC5173954E0002CBF6B /* ChoiceViewController.m */; };
 		53595AC8173954E0002CBF6B /* ChoiceViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 53595AC6173954E0002CBF6B /* ChoiceViewController.xib */; };
 		53595ACA174282A2002CBF6B /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53595AC9174282A2002CBF6B /* QuartzCore.framework */; };
@@ -29,8 +28,6 @@
 /* Begin PBXFileReference section */
 		53595ABE17392945002CBF6B /* WithinNavigationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WithinNavigationViewController.h; sourceTree = "<group>"; };
 		53595ABF17392945002CBF6B /* WithinNavigationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WithinNavigationViewController.m; sourceTree = "<group>"; };
-		53595AC11739324E002CBF6B /* DMGesturedPageIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = DMGesturedPageIndicator.h; path = Classes/DMGesturedPageIndicator.h; sourceTree = "<group>"; };
-		53595AC21739324E002CBF6B /* DMGesturedPageIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DMGesturedPageIndicator.m; path = Classes/DMGesturedPageIndicator.m; sourceTree = "<group>"; };
 		53595AC4173954E0002CBF6B /* ChoiceViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ChoiceViewController.h; sourceTree = "<group>"; };
 		53595AC5173954E0002CBF6B /* ChoiceViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ChoiceViewController.m; sourceTree = "<group>"; };
 		53595AC6173954E0002CBF6B /* ChoiceViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ChoiceViewController.xib; sourceTree = "<group>"; };
@@ -137,8 +134,6 @@
 			children = (
 				9F0B627417358EEC00B2AAE9 /* DMGesturedNavigationController.h */,
 				9F0B627517358EEC00B2AAE9 /* DMGesturedNavigationController.m */,
-				53595AC11739324E002CBF6B /* DMGesturedPageIndicator.h */,
-				53595AC21739324E002CBF6B /* DMGesturedPageIndicator.m */,
 			);
 			name = DMGesturedNavigationController;
 			sourceTree = "<group>";
@@ -215,7 +210,6 @@
 				9F0B626A17358ECB00B2AAE9 /* ViewController.m in Sources */,
 				9F0B627617358EEC00B2AAE9 /* DMGesturedNavigationController.m in Sources */,
 				53595AC017392945002CBF6B /* WithinNavigationViewController.m in Sources */,
-				53595AC31739324E002CBF6B /* DMGesturedPageIndicator.m in Sources */,
 				53595AC7173954E0002CBF6B /* ChoiceViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
