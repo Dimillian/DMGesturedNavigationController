@@ -217,6 +217,12 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
             layer.shadowPath = [UIBezierPath bezierPathWithRect:shadowFrame].CGPath;
         }
     }
+    else{
+        for (UIViewController *viewController in _internalViewControllers) {
+            CALayer *layer = viewController.view.layer;
+            layer.shadowOpacity = 0.0f;
+        }
+    }
 }
 
 - (void)rebuildNavBarStack
