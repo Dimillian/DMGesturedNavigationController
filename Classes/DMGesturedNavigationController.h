@@ -231,7 +231,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC;
 @property (nonatomic, readonly, weak) DMGesturedNavigationController *gesturedNavigationController;
 @property (nonatomic, readonly, weak) UIViewController *previousViewController;
 @property (nonatomic, readonly, weak) UIViewController *nextViewController;
-@property (nonatomic, readonly) NSInteger stackOffset;
+@property (nonatomic, readonly) NSInteger gesturedNavigationControllerOffset;
 @property (nonatomic, readonly, getter = isVisible) BOOL visible;
 @property (nonatomic, readonly, getter = isActive) BOOL active;
 - (void)pushViewControllerToSelf;

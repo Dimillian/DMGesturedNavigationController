@@ -660,7 +660,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 @dynamic gesturedNavigationController;
 @dynamic visible;
 @dynamic active;
-@dynamic stackOffset;
+@dynamic gesturedNavigationControllerOffset;
 
 - (BOOL)isVisible
 {
@@ -711,7 +711,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     return nil;
 }
 
-- (NSInteger)stackOffset
+- (NSInteger)gesturedNavigationControllerOffset
 {
     if ([self.gesturedNavigationController containViewController:self]) {
         return [self.gesturedNavigationController pageForViewController:self];

@@ -38,28 +38,28 @@
 
 - (void)childViewControllerdidBecomeActive
 {
-    NSLog(@"View Controller %d: Became active", [self stackOffset]);
+    NSLog(@"View Controller %d: Became active", [self gesturedNavigationControllerOffset]);
 }
 
 - (void)childViewControllerdidResignActive
 {
-    NSLog(@"View Controller %d: Resigned active", [self stackOffset]);
+    NSLog(@"View Controller %d: Resigned active", [self gesturedNavigationControllerOffset]);
 }
 
 - (void)childViewControllerdidShow
 {
-    NSLog(@"View Controller %d: Did show", [self stackOffset]);
-        self.title = [NSString stringWithFormat:@"VC: %d", [self stackOffset]];
+    NSLog(@"View Controller %d: Did show", [self gesturedNavigationControllerOffset]);
+        self.title = [NSString stringWithFormat:@"VC: %d", [self gesturedNavigationControllerOffset]];
 }
 
 - (void)childViewControllerdidHide
 {
-    NSLog(@"View Controller %d: Became active", [self stackOffset]);
+    NSLog(@"View Controller %d: Became active", [self gesturedNavigationControllerOffset]);
 }
 
 - (void)childViewControllerCouldBecomeActive
 {
-      NSLog(@"View Controller %d: Could become active", [self stackOffset]);
+      NSLog(@"View Controller %d: Could become active", [self gesturedNavigationControllerOffset]);
     //Good idea to customize transition
     /*
     [UIView animateWithDuration:0.30 animations:^{
@@ -70,7 +70,7 @@
 
 - (void)childViewControllerCouldBecomeInactive
 {
-    NSLog(@"View Controller %d: Could become innactive", [self stackOffset]);
+    NSLog(@"View Controller %d: Could become innactive", [self gesturedNavigationControllerOffset]);
     /*
     [UIView animateWithDuration:0.30 animations:^{
         [self.view setAlpha:0.50];
@@ -80,7 +80,7 @@
 
 - (void)childViewControllerVisiblePartDidChange:(NSNumber *)visiblePartWidth
 {
-    NSLog(@"View controller %d: Visible width %f", [self stackOffset], visiblePartWidth.floatValue );
+    NSLog(@"View controller %d: Visible width %f", [self gesturedNavigationControllerOffset], visiblePartWidth.floatValue );
 }
 
 - (IBAction)onRemove:(id)sender {
