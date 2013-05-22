@@ -543,7 +543,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
             navFrame.origin.y = -kDefaultNavigationBarHeightPortrait;
         }
         else{
-            vcFrame.origin.y = kDefaultNavigationBarHeightPortrait;
+            vcFrame.origin.y = 0;
             vcFrame.size.height = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
             navFrame.origin.y = 0;
         }
