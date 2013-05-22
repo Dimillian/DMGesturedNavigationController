@@ -110,7 +110,6 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
     [self.navigationBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.navigationBar];
-    [self reloadChildViewControllersTryToRebuildStack:NO];
     _currentPage = 0;
     _previousPage = 0;
 }
@@ -129,6 +128,13 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         [controller performSelector:@selector(childViewControllerdidBecomeActive)];
     }
     [self setNavigationBarHidden:NO animated:NO];
+    [self reloadChildViewControllersTryToRebuildStack:NO];
+    [self addObserver:self forKeyPath:@"navigationBarHidden"
+              options:NSKeyValueObservingOptionNew
+              context:nil];
+    [self addObserver:self forKeyPath:@"currentPage"
+              options:NSKeyValueObservingOptionNew
+              context:nil];
 	// Do any additional setup after loading the view.
 }
 
@@ -144,20 +150,18 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)viewDidDisappear:(BOOL)animated
 {
-    [self removeObserver:self forKeyPath:@"navigationBarHidden"],
-    [self removeObserver:self forKeyPath:@"currentPage"];
     [super viewDidDisappear:animated];
 }
 
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    [self addObserver:self forKeyPath:@"navigationBarHidden"
-              options:NSKeyValueObservingOptionNew
-              context:nil];
-    [self addObserver:self forKeyPath:@"currentPage"
-              options:NSKeyValueObservingOptionNew
-              context:nil];
+}
+
+- (void)dealloc
+{
+    [self removeObserver:self forKeyPath:@"navigationBarHidden"],
+    [self removeObserver:self forKeyPath:@"currentPage"];
 }
 
 
@@ -185,14 +189,10 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     }
     for (UIViewController *viewController in _internalViewControllers) {
         NSInteger index = [_internalViewControllers indexOfObject:viewController];
-        CGFloat oY = kDefaultNavigationBarHeightPortrait;
-        if (self.isNavigatioNBarHidden) {
-            oY = 0;
-        }
         viewController.view.frame = CGRectMake(self.containerScrollView.frame.size.width * index,
-                                               oY,
+                                               0,
                                                self.containerScrollView.frame.size.width,
-                                               self.containerScrollView.frame.size.height - oY);
+                                               self.containerScrollView.frame.size.height);
         
         [self addChildViewController:viewController];
         [self.containerScrollView addSubview:viewController.view];
@@ -529,17 +529,16 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated
 {
     _navigationBarHidden = navigationBarHidden;
-    CGRect scrollFrame = self.containerScrollView.bounds;
+    CGRect scrollFrame = self.containerScrollView.frame;
     CGFloat sY = 0;
-    CGFloat sH = self.containerScrollView.bounds.size.height;
+    CGFloat sH = self.view.frame.size.height;
     if (!navigationBarHidden) {
         sY = kDefaultNavigationBarHeightPortrait;
-        sH -= kDefaultNavigationBarHeightPortrait;
-        
+        sH = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
     }
     scrollFrame.origin.y = sY;
     scrollFrame.size.height = sH;
-    for (UIViewController *viewController in self.childViewControllers) {
+    for (UIViewController *viewController in _internalViewControllers) {
         CGRect vcFrame = viewController.view.frame;
         CGRect navFrame = self.navigationBar.frame;
         if (navigationBarHidden) {
@@ -556,15 +555,21 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
             [UIView animateWithDuration:0.2 animations:^{
                 [self.navigationBar setFrame:navFrame];
                 [viewController.view setFrame:vcFrame];
-                [self.containerScrollView setFrame:scrollFrame];
             }];
         }
         else{
             [self.navigationBar setFrame:navFrame];
             [viewController.view setFrame:vcFrame];
             [self.navigationBar setHidden:navigationBarHidden];
-            [self.containerScrollView setFrame:scrollFrame];
         }
+    }
+    if (animated) {
+        [UIView animateWithDuration:0.2 animations:^{
+            [self.containerScrollView setFrame:scrollFrame];
+        }];
+    }
+    else{
+        [self.containerScrollView setFrame:scrollFrame];
     }
 }
 

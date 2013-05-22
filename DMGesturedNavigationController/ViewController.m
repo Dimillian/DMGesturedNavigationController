@@ -83,6 +83,12 @@
     NSLog(@"View controller %d: Visible width %f", [self gesturedNavigationControllerOffset], visiblePartWidth.floatValue );
 }
 
+- (IBAction)onHideNavBar:(id)sender {
+    [self.gesturedNavigationController
+     setNavigationBarHidden:!self.gesturedNavigationController.isNavigatioNBarHidden
+     animated:YES];
+}
+
 - (IBAction)onRemove:(id)sender {
     [self.gesturedNavigationController removeViewController:self animated:YES];
 }

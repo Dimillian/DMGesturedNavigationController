@@ -10,6 +10,7 @@
 #import "DMGesturedNavigationController.h"
 
 @interface ViewController : UIViewController <DMGesturedChildViewControllerNotifications>
+- (IBAction)onHideNavBar:(id)sender;
 - (IBAction)onRemove:(id)sender;
 - (IBAction)onInsert:(id)sender;
 - (IBAction)onPushNew:(id)sender;
