@@ -54,6 +54,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 @dynamic viewControllers;
 @dynamic allowSideBoucing;
 @dynamic allowSwipeTransition;
+@dynamic backgroundColor;
 
 #pragma mark - Init stuff
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -94,7 +95,10 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)loadView
 {
     [super loadView];
-    _containerScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height)];
+    _containerScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0,
+                                                                         kDefaultNavigationBarHeightPortrait,
+                                                                         self.view.frame.size.width,
+                                                                         self.view.frame.size.height)];
     [self.containerScrollView setDelegate:self];
     [self.containerScrollView setPagingEnabled:YES];
     [self.containerScrollView setBackgroundColor:[UIColor clearColor]];
@@ -124,6 +128,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     if ([controller respondsToSelector:@selector(childViewControllerdidBecomeActive)]) {
         [controller performSelector:@selector(childViewControllerdidBecomeActive)];
     }
+    [self setNavigationBarHidden:NO animated:NO];
 	// Do any additional setup after loading the view.
 }
 
@@ -187,7 +192,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         viewController.view.frame = CGRectMake(self.containerScrollView.frame.size.width * index,
                                                oY,
                                                self.containerScrollView.frame.size.width,
-                                               self.containerScrollView.frame.size.height);
+                                               self.containerScrollView.frame.size.height - oY);
         
         [self addChildViewController:viewController];
         [self.containerScrollView addSubview:viewController.view];
@@ -459,6 +464,16 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
          
 #pragma mark - getters & setters
 
+- (void)setBackgroundColor:(UIColor *)backgroundColor
+{
+    [self.containerScrollView setBackgroundColor:backgroundColor];
+}
+
+- (UIColor *)backgroundColor
+{
+    return self.containerScrollView.backgroundColor;
+}
+
 - (void)setDisplayEdgeShadow:(BOOL)displayEdgeShadow
 {
     _displayEdgeShadow = displayEdgeShadow;
@@ -513,29 +528,37 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated
 {
     _navigationBarHidden = navigationBarHidden;
-    for (UIViewController *viewController in _internalViewControllers) {
+    CGRect scrollFrame = self.containerScrollView.frame;
+    CGFloat sY = 0;
+    if (!navigationBarHidden) {
+        sY = kDefaultNavigationBarHeightPortrait;
+    }
+    scrollFrame.origin.y = sY;
+    for (UIViewController *viewController in self.childViewControllers) {
         CGRect vcFrame = viewController.view.frame;
         CGRect navFrame = self.navigationBar.frame;
         if (navigationBarHidden) {
             vcFrame.origin.y = 0;
+            vcFrame.size.height = self.view.frame.size.height;
             navFrame.origin.y = -kDefaultNavigationBarHeightPortrait;
         }
         else{
             vcFrame.origin.y = kDefaultNavigationBarHeightPortrait;
+            vcFrame.size.height = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
             navFrame.origin.y = 0;
         }
         if (animated) {
             [UIView animateWithDuration:0.2 animations:^{
                 [self.navigationBar setFrame:navFrame];
                 [viewController.view setFrame:vcFrame];
-            }completion:^(BOOL finished) {
-                [self.navigationBar setHidden:navigationBarHidden];
+                [self.containerScrollView setFrame:scrollFrame];
             }];
         }
         else{
             [self.navigationBar setFrame:navFrame];
             [viewController.view setFrame:vcFrame];
             [self.navigationBar setHidden:navigationBarHidden];
+            [self.containerScrollView setFrame:scrollFrame];
         }
     }
 }

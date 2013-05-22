@@ -142,6 +142,12 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 @property (nonatomic, getter = isDisplayEdgeShadow) BOOL displayEdgeShadow;
 
+/*
+ Set the background color of DMGesturedNavigationController
+ You can see the background color when you scroll over the dge
+ */
+@property (nonatomic, strong) UIColor *backgroundColor;
+
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 - (id)initWithViewControllers:(NSArray *)viewControllers;
 
