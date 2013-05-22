@@ -246,6 +246,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)pageChanged
 {
+    NSLog(@"PAGE CHANGED");
     UIViewController *current = [self visibleViewController];
     [current viewDidAppear:YES];
     UIViewController *previousInStack = current.previousViewController;
@@ -528,12 +529,16 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated
 {
     _navigationBarHidden = navigationBarHidden;
-    CGRect scrollFrame = self.containerScrollView.frame;
+    CGRect scrollFrame = self.containerScrollView.bounds;
     CGFloat sY = 0;
+    CGFloat sH = self.containerScrollView.bounds.size.height;
     if (!navigationBarHidden) {
         sY = kDefaultNavigationBarHeightPortrait;
+        sH -= kDefaultNavigationBarHeightPortrait;
+        
     }
     scrollFrame.origin.y = sY;
+    scrollFrame.size.height = sH;
     for (UIViewController *viewController in self.childViewControllers) {
         CGRect vcFrame = viewController.view.frame;
         CGRect navFrame = self.navigationBar.frame;
