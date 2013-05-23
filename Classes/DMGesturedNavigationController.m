@@ -543,13 +543,12 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         CGRect navFrame = self.navigationBar.frame;
         if (navigationBarHidden) {
             vcFrame.origin.y = 0;
-          vcFrame.size.height = self.containerScrollView.frame.size.height;
-          
+            vcFrame.size.height = self.containerScrollView.frame.size.height;
             navFrame.origin.y = -kDefaultNavigationBarHeightPortrait;
         }
         else{
             vcFrame.origin.y = 0;
-          vcFrame.size.height = self.containerScrollView.frame.size.height;
+            vcFrame.size.height = self.containerScrollView.frame.size.height;
             navFrame.origin.y = 0;
         }
         if (animated) {
