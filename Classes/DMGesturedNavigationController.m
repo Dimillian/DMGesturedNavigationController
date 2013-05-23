@@ -530,25 +530,26 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 {
     _navigationBarHidden = navigationBarHidden;
     CGRect scrollFrame = self.containerScrollView.frame;
-    CGFloat sY = 0;
-    CGFloat sH = self.view.frame.size.height;
-    if (!navigationBarHidden) {
-        sY = kDefaultNavigationBarHeightPortrait;
-        sH = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
+    if (navigationBarHidden) {
+      scrollFrame.origin.y = 0;
+      scrollFrame.size.height = self.view.frame.size.height;
     }
-    scrollFrame.origin.y = sY;
-    scrollFrame.size.height = sH;
+    else{
+      scrollFrame.origin.y = kDefaultNavigationBarHeightPortrait;
+      scrollFrame.size.height = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
+    }
     for (UIViewController *viewController in _internalViewControllers) {
         CGRect vcFrame = viewController.view.frame;
         CGRect navFrame = self.navigationBar.frame;
         if (navigationBarHidden) {
             vcFrame.origin.y = 0;
-            vcFrame.size.height = self.view.frame.size.height;
+          vcFrame.size.height = self.containerScrollView.frame.size.height;
+          
             navFrame.origin.y = -kDefaultNavigationBarHeightPortrait;
         }
         else{
             vcFrame.origin.y = 0;
-            vcFrame.size.height = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
+          vcFrame.size.height = self.containerScrollView.frame.size.height;
             navFrame.origin.y = 0;
         }
         if (animated) {
