@@ -246,7 +246,6 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)pageChanged
 {
-    NSLog(@"PAGE CHANGED");
     UIViewController *current = [self visibleViewController];
     [current viewDidAppear:YES];
     UIViewController *previousInStack = current.previousViewController;
