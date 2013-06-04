@@ -104,6 +104,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.containerScrollView setBackgroundColor:[UIColor clearColor]];
     [self.containerScrollView setShowsHorizontalScrollIndicator:NO];
     [self.containerScrollView setShowsVerticalScrollIndicator:YES];
+    [self.containerScrollView setScrollsToTop:NO];
     [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
      UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.containerScrollView];
@@ -300,6 +301,25 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _tmpStackedViewController = [self viewControllerForPage:_previousPage];
     }
     _previousPage = self.currentPage;
+    
+    for (UIViewController *viewController in self.viewControllers) {
+        NSInteger index = [self.viewControllers indexOfObject:viewController];
+        if (index != self.currentPage) {
+            for (UIView *subview in [viewController.view subviews]) {
+                if ([subview respondsToSelector:@selector(scrollsToTop)]) {
+                    [(UIScrollView *)subview setScrollsToTop:NO];
+                }
+            }
+        }
+        else{
+            for (UIView *subview in [viewController.view subviews]) {
+                if ([subview respondsToSelector:@selector(scrollsToTop)]) {
+                    [(UIScrollView *)subview setScrollsToTop:YES];
+                }
+            }
+
+        }
+    }
 }
 
 - (void)pushBack
