@@ -38,6 +38,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)rebuildNavBarStack;
 - (void)pageChanged;
 - (void)pushBack;
+- (void)enableScrollToTop;
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated;
 - (void)pushExternalViewController:(UIViewController *)viewController
                            animted:(BOOL)animated
@@ -136,6 +137,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self addObserver:self forKeyPath:@"currentPage"
               options:NSKeyValueObservingOptionNew
               context:nil];
+    [self enableScrollToTop];
 	// Do any additional setup after loading the view.
 }
 
@@ -301,7 +303,11 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _tmpStackedViewController = [self viewControllerForPage:_previousPage];
     }
     _previousPage = self.currentPage;
-    
+    [self enableScrollToTop];
+}
+
+- (void)enableScrollToTop
+{
     for (UIViewController *viewController in self.viewControllers) {
         NSInteger index = [self.viewControllers indexOfObject:viewController];
         if (index != self.currentPage) {
@@ -317,7 +323,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
                     [(UIScrollView *)subview setScrollsToTop:YES];
                 }
             }
-
+            
         }
     }
 }
