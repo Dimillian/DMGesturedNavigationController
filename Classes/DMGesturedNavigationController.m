@@ -114,11 +114,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.view addSubview:self.navigationBar];
     _currentPage = 0;
     _previousPage = 0;
-}
 
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
     UIViewController *controller = [_internalViewControllers objectAtIndex:_currentPage];
     [self.navigationBar pushNavigationItem:controller.navigationItem animated:self.isAnimatedNavbarChange];
     controller.active = YES;
@@ -138,6 +134,12 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
               options:NSKeyValueObservingOptionNew
               context:nil];
     [self enableScrollToTop];
+}
+
+- (void)viewDidLoad
+{
+    [super viewDidLoad];
+
 	// Do any additional setup after loading the view.
 }
 
@@ -159,6 +161,10 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
+    UIViewController *controller = [_internalViewControllers objectAtIndex:_currentPage];
+    if ([controller respondsToSelector:@selector(childViewControllerCouldProvideTitle)]){
+        [controller performSelector:@selector(childViewControllerCouldProvideTitle)];
+    }
 }
 
 - (void)dealloc
@@ -256,6 +262,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     if ([_tmpPreviousViewController respondsToSelector:@selector(childViewControllerCouldBecomeInactive)]) {
         [_tmpPreviousViewController performSelector:@selector(childViewControllerCouldBecomeInactive)];
     }
+
     if ([current respondsToSelector:@selector(childViewControllerCouldBecomeActive)]) {
         [current performSelector:@selector(childViewControllerCouldBecomeActive)];
     }
@@ -264,6 +271,9 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         title = previousInStack.title;
     }
     if (self.currentPage != 0) {
+        if ([current respondsToSelector:@selector(childViewControllerCouldProvideTitle)]){
+            [current performSelector:@selector(childViewControllerCouldProvideTitle)];
+        }
         UINavigationItem *newItem = current.navigationItem;
         if (current.navigationItem.leftBarButtonItem || current.navigationItem.leftBarButtonItems) {
             if (current.navigationItem.leftBarButtonItems.count > 0) {
@@ -299,6 +309,9 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         }
     }
     else{
+        if ([current respondsToSelector:@selector(childViewControllerCouldProvideTitle)]){
+            [current performSelector:@selector(childViewControllerCouldProvideTitle)];
+        }
         [self rebuildNavBarStack];
         _tmpStackedViewController = [self viewControllerForPage:_previousPage];
     }

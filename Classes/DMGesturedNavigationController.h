@@ -54,8 +54,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 - (void)childViewControllerdidBecomeActive;
 /**
- Called when your view controller become innactive. An innactive state your when the view controller is not visile
- anymore and that gesture and transition animations are ended.
+ Called when your view controller become inactive. An inactive your when the view controller is not visible anymore and that gesture and transition animations are ended.
  */
 - (void)childViewControllerdidResignActive;
 /** 
@@ -64,16 +63,22 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 - (void)childViewControllerCouldBecomeActive;
 /**
- Called when your view controller could become the innactive. When the user scrolled more than 50% out of it
- Don't assume that it will the next innactive one.
+ Called when your view controller could become the inactive. When the user scrolled more than 50% out of it
+ Don't assume that it will the next inactive one.
  */
 - (void)childViewControllerCouldBecomeInactive;
 /**
  Called when a view controller move. Provide you the actual visible width float value wrapped in an NSNumber
  It is not called if the view controller is not visible
- For example, on an iPhone, if your view controller is full screen, this valus can vary from 0.0 to 320.0.
+ For example, on an iPhone, if your view controller is full screen, this values can vary from 0.0 to 320.0.
  */
 - (void)childViewControllerVisiblePartDidChange:(NSNumber *)visiblePartWidth;
+
+/**
+ If you implement this you have a chance to set the title of your root view controller only once
+ you parent DMGesturedNavigationController is ready.
+*/
+- (void)childViewControllerCouldProvideTitle;
 @end
 
 @interface DMGesturedNavigationController : UIViewController <UIScrollViewDelegate>
@@ -98,7 +103,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
 @property (nonatomic, readonly, strong) UINavigationBar *navigationBar;
 /**
  If you set this property to a UIBarButtonItem it will be used as a back button, the action and target
- will be set iternally you can leave them to nil
+ will be set internally you can leave them to nil
  You can also implement a UILeftBarButtonItem in your UIViewController navigation item, in this case
  no back bar button item will be provided. 
  */
@@ -131,8 +136,8 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
 @property (nonatomic, getter = isAllowSwipeTransition) BOOL allowSwipeTransition;
 /*
  Set to NO if you don't want to animate the UINavigationItem pop and push of the navigation bar.
- You might set it to NO before doing instensive modification of the stack which could lead to a break
- of the UINavigationBar stack. DMGesturedNavigationController will alway try to rebuild it if corrupted.
+ You might set it to NO before doing intensive modification of the stack which could lead to a break
+ of the UINavigationBar stack. DMGesturedNavigationController will always try to rebuild it if corrupted.
  Default value is YES.
  */
 @property (nonatomic, getter = isAnimatedNavbarChange) BOOL animatedNavbarChange;
@@ -168,7 +173,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  @param removeInBetweenVC Is you are in a stackType DMGesturedNavigationControllerStackNavigationFree it is 
  possible that the visible view controller is not the last one the stack.
  Set YES if you want to remove every view controllers between the new one you wan to push and the visible one
- Set NO if you don't want to remove in betweeen VC, the passef view controller will be added at the end and displayed.
+ Set NO if you don't want to remove in between VC, the passed view controller will be added at the end and displayed.
  If your stack type is set to DMGesturedNavigationControllerStackLikeNavigationController this parameter will have no 
  effect
  */
@@ -177,7 +182,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
 removeInBetweenViewControllers:(BOOL)removeInBetweenVC;
 
 /**
- Insert the passed view controller at the specified offset, preserve the stack in betweee, after and before.
+ Insert the passed view controller at the specified offset, preserve the stack in between, after and before.
  */
 - (void)inserViewController:(UIViewController *)viewController
               atStackOffset:(NSInteger)offset
@@ -231,7 +236,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC;
 @end
 
 /**
- Category that can be used if you are in a child view controller UIViewControleller subclass of 
+ Category that can be used if you are in a child view controller UIViewController subclass of
  DMGesturedNavigationController.
  Provide various useful properties
  */
