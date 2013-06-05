@@ -68,6 +68,15 @@ This one is interesting, you can push a new UIViewController and navigate to it,
 Those methods are documented. 
 The new thing is that you can freely add or remove a VC in the stack and navigate to it. 
 
+###DMGesturedChildViewControllerNotifications
+
+
+DMGesturedNavigationController provide a protocol for you to implement if you wish. 
+You can implement the methods provided by this protocol, so you will be notified at the right time 
+when your view controller become active, resign active etc…
+
+You Should use thode methods instead of Apple one (viewDidAppear…) when working with a DMGesturedNavigationController. 
+
 ##Know issues
 1. The navigation bar stack is bugged when animated if you do too much transitions simultaneously.
 3. The bottom toolbar is not implemented.

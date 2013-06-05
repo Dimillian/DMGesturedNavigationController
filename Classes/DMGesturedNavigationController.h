@@ -34,7 +34,9 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  DMGesturedChildViewControllerNotifications, you can implement this protocol in your UIViewController subclass
  which are used in a DMGesturedNavigationController. If implemented those methods will be called by 
  DMGesturedNavigationController to notify your UIViewController about it's current state
- No need to call super.
+ Do not to call super.
+ You should use these methods instead of viewDidAppear and viewWillAppear. DMGesturedViewController does not
+ guarantee to call them only once. Those method will only be called at the right time.
  */
 @protocol DMGesturedChildViewControllerNotifications <NSObject>
 @optional
