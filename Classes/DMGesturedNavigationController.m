@@ -343,7 +343,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
 - (void)pushBack
 {
-    [self popViewConrollerAnimated:YES];
+    [self popViewControllerAnimated:YES];
 }
 
 - (void)scrollToPage:(NSInteger)page animated:(BOOL)animated
@@ -464,7 +464,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     [self scrollToPage:0 animated:animated];
 }
 
-- (void)popViewConrollerAnimated:(BOOL)animated
+- (void)popViewControllerAnimated:(BOOL)animated
 {
     if (self.stackType == DMGesturedNavigationControllerStackLikeNavigationController &&
         self.popAnimationType == DMGesturedNavigationControllerPopAnimationNewWay) {

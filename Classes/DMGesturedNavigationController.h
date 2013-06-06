@@ -204,7 +204,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC;
  If your top view controller is the root of the stack this method does nothing
  */
 
-- (void)popViewConrollerAnimated:(BOOL)animated;
+- (void)popViewControllerAnimated:(BOOL)animated;
 /**
  Pops all the view controllers on the stack except the root view controller and updates the display.
  View controller will be removed from the stack only if the stack type is set to 
