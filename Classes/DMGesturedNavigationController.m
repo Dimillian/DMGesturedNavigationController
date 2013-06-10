@@ -66,6 +66,8 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _navigationBarHidden = NO;
         _animatedNavbarChange = YES;
         _displayEdgeShadow = YES;
+        _minimumScaleOnSwipe = 0.8f;
+        _scalingWhenSwipe = NO;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
         // Custom initialization
@@ -662,6 +664,23 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         self.currentPage = newOffset;
     }
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
+
+    if (self.isScalingWhenSwipe){
+        CGFloat offset = scrollView.contentOffset.x;
+
+        for (UIViewController *viewController in self.viewControllers) {
+            NSInteger index = [self.viewControllers indexOfObject:viewController];
+            CGFloat width = scrollView.frame.size.width;
+            CGFloat y = index * width;
+            CGFloat value = (offset-y)/width;
+            CGFloat scale = 1.f-fabs(value);
+            if (scale > 1.f) scale = 1.f;
+            if (scale < self.minimumScaleOnSwipe) scale = self.minimumScaleOnSwipe;
+
+            viewController.view.transform = CGAffineTransformMakeScale(scale, scale);
+        }
+    }
+
     [self performSelector:@selector(scrollViewDidEndScrollingAnimation:) withObject:nil afterDelay:0.1];
 
 }
@@ -687,6 +706,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         _tmpStackedViewController = nil;
         [self reloadChildViewControllersTryToRebuildStack:YES];
     }
+
     [self rebuildNavBarStack];
     
 }

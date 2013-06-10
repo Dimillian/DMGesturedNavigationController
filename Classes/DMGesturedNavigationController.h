@@ -155,6 +155,18 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 @property (nonatomic, strong) UIColor *backgroundColor;
 
+/*
+ Scale animation when a view controller is swiped
+ Default value is NO
+ */
+@property  (nonatomic, getter= isScalingWhenSwipe) BOOL scalingWhenSwipe;
+
+/*
+ if scalingWhenSwipe is set to YES then you can set the minimum scale
+ Default value is 0.8f
+ */
+@property (nonatomic) CGFloat minimumScaleOnSwipe;
+
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 - (id)initWithViewControllers:(NSArray *)viewControllers;
 
