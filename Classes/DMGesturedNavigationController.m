@@ -71,6 +71,8 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
         // Custom initialization
+        [self setScalingWhenSwipe:YES];
+        [self setMinimumScaleOnSwipe:.9f];
     }
     return self;
 }
@@ -665,19 +667,27 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     }
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
-    if (self.isScalingWhenSwipe){
+    if (self.isScalingWhenSwipe) {
         CGFloat offset = scrollView.contentOffset.x;
-
         for (UIViewController *viewController in self.viewControllers) {
-            NSInteger index = [self.viewControllers indexOfObject:viewController];
+            NSUInteger index = [self.viewControllers indexOfObject:viewController];
             CGFloat width = scrollView.frame.size.width;
-            CGFloat y = index * width;
-            CGFloat value = (offset-y)/width;
-            CGFloat scale = 1.f-fabs(value);
+            CGFloat x = index * width;
+            CGFloat value = (offset - x)/width;
+            CGFloat scale = 1.f - fabs(value);
             if (scale > 1.f) scale = 1.f;
             if (scale < self.minimumScaleOnSwipe) scale = self.minimumScaleOnSwipe;
-
             viewController.view.transform = CGAffineTransformMakeScale(scale, scale);
+            // Y AXIS DRAFT
+            CGFloat dx = value;
+            CGFloat yTransformation = dx / viewController.view.window.frame.size.width;
+            CATransform3D layerTransform = CATransform3DIdentity;
+            layerTransform.m34 = 1.0f / -300; // perspective effect
+            viewController.view.layer.transform = CATransform3DRotate(layerTransform,
+                                                       5.0f / (180.0f / M_PI),
+                                                       0,
+                                                       yTransformation,
+                                                       0);
         }
     }
 
