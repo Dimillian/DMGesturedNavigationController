@@ -75,9 +75,9 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 
         // Example for 3D animated transitions, have fun
         [self setScalingWhenSwipe:YES];
-        [self setMinimumScaleOnSwipe:.9f];
+        [self setMinimumScaleOnSwipe:.95f];
         [self setRotateYAxisWhenSwipe:YES];
-        [self setMaximumInclinaisonAngle:5.0f];
+        [self setMaximumInclinaisonAngle:3.0f];
     }
     return self;
 }
@@ -679,8 +679,8 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
             CGFloat width = scrollView.frame.size.width;
             CGFloat originXForVC = index * width;
             CGFloat value = (offset - originXForVC)/width;
-            CATransform3D rotateTransform = CATransform3DIdentity;
             CATransform3D scaleTransform = CATransform3DIdentity;
+            CATransform3D rotateTransform = CATransform3DIdentity;
             
             if (self.isScalingWhenSwipe) {
                 CGFloat scale = 1.f - fabs(value);
@@ -691,17 +691,15 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
             if (self.isRotateYAxisWhenSwipe) {
                 CGFloat dX = (offset+viewController.view.frame.size.width/2) - (originXForVC+width/2);
                 CGFloat angle = (fabs(dX) / (width/2)) * self.maximumInclinaisonAngle;
-                
                 CATransform3D layerTransform = CATransform3DIdentity;
-                layerTransform.m34 = 1.0f / -300; // perspective effect
+                layerTransform.m34 = -1.0f / 300; // perspective effect
                 rotateTransform = CATransform3DRotate(layerTransform,
                                                       angle / (180.f/M_PI),
                                                       0,
                                                       value,
                                                       0);
             }
-            CATransform3D combinedTransform = CATransform3DConcat(rotateTransform, scaleTransform);
-            [viewController.view.layer setTransform:combinedTransform];
+            [viewController.view.layer setTransform:CATransform3DConcat(scaleTransform, rotateTransform)];
         }
     }
 
@@ -710,6 +708,11 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
 {
+    if (self.isScalingWhenSwipe || self.isRotateYAxisWhenSwipe) {
+        for (UIViewController *viewController in self.viewControllers) {
+            [viewController.view setTransform:CGAffineTransformScale(CGAffineTransformIdentity, 1.0f, 1.0f)];
+        }
+    }
     UIViewController *current = [self visibleViewController];    
     if ([current respondsToSelector:@selector(childViewControllerdidBecomeActive)]) {
         [current performSelector:@selector(childViewControllerdidBecomeActive)];
