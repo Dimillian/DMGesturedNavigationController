@@ -159,13 +159,25 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  Scale animation when a view controller is swiped
  Default value is NO
  */
-@property  (nonatomic, getter= isScalingWhenSwipe) BOOL scalingWhenSwipe;
+@property  (nonatomic, getter = isScalingWhenSwipe) BOOL scalingWhenSwipe;
 
 /*
  if scalingWhenSwipe is set to YES then you can set the minimum scale
  Default value is 0.8f
  */
 @property (nonatomic) CGFloat minimumScaleOnSwipe;
+
+/*
+ Rotate the Y axis when a view controller is swiped
+ Default value is NO
+ */
+@property  (nonatomic, getter = isRotateYAxisWhenSwipe) BOOL rotateYAxisWhenSwipe;
+
+/*
+ if scalingWhenSwipe is set to YES then you can set the mximum inclinaison angle
+ Default value is 10
+ */
+@property (nonatomic) CGFloat maximumInclinaisonAngle;
 
 - (id)initWithRootViewController:(UIViewController *)rootViewController;
 - (id)initWithViewControllers:(NSArray *)viewControllers;
