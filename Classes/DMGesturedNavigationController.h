@@ -171,7 +171,7 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  Rotate the Y axis when a view controller is swiped
  Default value is NO
  */
-@property  (nonatomic, getter = isRotateYAxis) BOOL rotateYAxis;
+@property  (nonatomic, getter = isRotateYAxisWhenSwipe) BOOL rotateYAxisWhenSwipe;
 
 /*
  if scalingWhenSwipe is set to YES then you can set the mximum inclinaison angle

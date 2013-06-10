@@ -67,14 +67,16 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _animatedNavbarChange = YES;
         _displayEdgeShadow = YES;
         _minimumScaleOnSwipe = 0.8f;
-        _maximumInclinaisonAngle = 10.0f;
         _scalingWhenSwipe = NO;
+        _maximumInclinaisonAngle = 10.0f;
+        _rotateYAxisWhenSwipe = NO;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
-        // Custom initialization
+
+        // Example for 3D animated transitions, have fun
         [self setScalingWhenSwipe:YES];
         [self setMinimumScaleOnSwipe:.9f];
-        [self setRotateYAxis:YES];
+        [self setRotateYAxisWhenSwipe:YES];
         [self setMaximumInclinaisonAngle:5.0f];
     }
     return self;
@@ -670,30 +672,36 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
     }
     [NSObject cancelPreviousPerformRequestsWithTarget:self];
 
-    if (self.isScalingWhenSwipe) {
+    if (self.isScalingWhenSwipe || self.isRotateYAxisWhenSwipe) {
         CGFloat offset = scrollView.contentOffset.x;
         for (UIViewController *viewController in self.viewControllers) {
             NSUInteger index = [self.viewControllers indexOfObject:viewController];
             CGFloat width = scrollView.frame.size.width;
-            CGFloat x = index * width;
-            CGFloat value = (offset - x)/width;
-            CGFloat scale = 1.f - fabs(value);
-            if (scale > 1.f) scale = 1.f;
-            if (scale < self.minimumScaleOnSwipe) scale = self.minimumScaleOnSwipe;
-            viewController.view.transform = CGAffineTransformMakeScale(scale, scale);
-
-            if (self.isRotateYAxis) {
-                CGFloat dX = (offset+viewController.view.frame.size.width/2) - (x+width/2);
+            CGFloat originXForVC = index * width;
+            CGFloat value = (offset - originXForVC)/width;
+            CATransform3D rotateTransform = CATransform3DIdentity;
+            CATransform3D scaleTransform = CATransform3DIdentity;
+            
+            if (self.isScalingWhenSwipe) {
+                CGFloat scale = 1.f - fabs(value);
+                if (scale > 1.f) scale = 1.f;
+                if (scale < self.minimumScaleOnSwipe) scale = self.minimumScaleOnSwipe;
+                scaleTransform = CATransform3DMakeScale(scale, scale, 0);
+            }
+            if (self.isRotateYAxisWhenSwipe) {
+                CGFloat dX = (offset+viewController.view.frame.size.width/2) - (originXForVC+width/2);
                 CGFloat angle = (fabs(dX) / (width/2)) * self.maximumInclinaisonAngle;
                 
                 CATransform3D layerTransform = CATransform3DIdentity;
                 layerTransform.m34 = 1.0f / -300; // perspective effect
-                viewController.view.layer.transform = CATransform3DRotate(layerTransform,
-                                                                          angle / (180.f/M_PI),
-                                                                          0,
-                                                                          value,
-                                                                          0);
+                rotateTransform = CATransform3DRotate(layerTransform,
+                                                      angle / (180.f/M_PI),
+                                                      0,
+                                                      value,
+                                                      0);
             }
+            CATransform3D combinedTransform = CATransform3DConcat(rotateTransform, scaleTransform);
+            [viewController.view.layer setTransform:combinedTransform];
         }
     }
 
