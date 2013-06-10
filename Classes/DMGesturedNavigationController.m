@@ -67,12 +67,15 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _animatedNavbarChange = YES;
         _displayEdgeShadow = YES;
         _minimumScaleOnSwipe = 0.8f;
+        _maximumInclinaisonAngle = 10.0f;
         _scalingWhenSwipe = NO;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
         // Custom initialization
         [self setScalingWhenSwipe:YES];
         [self setMinimumScaleOnSwipe:.9f];
+        [self setRotateYAxis:YES];
+        [self setMaximumInclinaisonAngle:5.0f];
     }
     return self;
 }
@@ -678,21 +681,23 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
             if (scale > 1.f) scale = 1.f;
             if (scale < self.minimumScaleOnSwipe) scale = self.minimumScaleOnSwipe;
             viewController.view.transform = CGAffineTransformMakeScale(scale, scale);
-            // Y AXIS DRAFT
-            CGFloat dx = value;
-            CGFloat yTransformation = dx / viewController.view.window.frame.size.width;
-            CATransform3D layerTransform = CATransform3DIdentity;
-            layerTransform.m34 = 1.0f / -300; // perspective effect
-            viewController.view.layer.transform = CATransform3DRotate(layerTransform,
-                                                       5.0f / (180.0f / M_PI),
-                                                       0,
-                                                       yTransformation,
-                                                       0);
+
+            if (self.isRotateYAxis) {
+                CGFloat dX = (offset+viewController.view.frame.size.width/2) - (x+width/2);
+                CGFloat angle = (fabs(dX) / (width/2)) * self.maximumInclinaisonAngle;
+                
+                CATransform3D layerTransform = CATransform3DIdentity;
+                layerTransform.m34 = 1.0f / -300; // perspective effect
+                viewController.view.layer.transform = CATransform3DRotate(layerTransform,
+                                                                          angle / (180.f/M_PI),
+                                                                          0,
+                                                                          value,
+                                                                          0);
+            }
         }
     }
 
     [self performSelector:@selector(scrollViewDidEndScrollingAnimation:) withObject:nil afterDelay:0.1];
-
 }
 
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
