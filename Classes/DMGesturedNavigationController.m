@@ -72,12 +72,6 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
         _rotateYAxisWhenSwipe = NO;
         _stackType = DMGesturedNavigationControllerStackNavigationFree;
         _popAnimationType = DMGesturedNavigationControllerPopAnimationNewWay;
-
-        // Example for 3D animated transitions, have fun
-        [self setScalingWhenSwipe:YES];
-        [self setMinimumScaleOnSwipe:.95f];
-        [self setRotateYAxisWhenSwipe:YES];
-        [self setMaximumInclinaisonAngle:3.0f];
     }
     return self;
 }

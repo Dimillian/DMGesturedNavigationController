@@ -51,7 +51,7 @@
     DMGesturedNavigationController *container = [[DMGesturedNavigationController alloc]initWithViewControllers:@[controller1, controller2, controller3, controller4]];
     UINavigationController *navigation = [[UINavigationController alloc]initWithRootViewController:container];
     [container.view setBackgroundColor:[UIColor scrollViewTexturedBackgroundColor]];
-    [container setAnimatedNavbarChange:YES];
+    [container setAnimatedNavbarChange:NO];
     [navigation setNavigationBarHidden:YES animated:NO];
     [self presentViewController:navigation animated:YES completion:^{
         
