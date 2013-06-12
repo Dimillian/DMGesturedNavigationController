@@ -50,7 +50,7 @@
     [controller4.view setBackgroundColor:[UIColor orangeColor]];
     DMGesturedNavigationController *container = [[DMGesturedNavigationController alloc]initWithViewControllers:@[controller1, controller2, controller3, controller4]];
     UINavigationController *navigation = [[UINavigationController alloc]initWithRootViewController:container];
-    [container.view setBackgroundColor:[UIColor scrollViewTexturedBackgroundColor]];
+    [container.view setBackgroundColor:[UIColor lightGrayColor]];
     [container setAnimatedNavbarChange:NO];
     [navigation setNavigationBarHidden:YES animated:NO];
     [self presentViewController:navigation animated:YES completion:^{
@@ -64,7 +64,7 @@
     controller1.title = @"First";
     DMGesturedNavigationController *container = [[DMGesturedNavigationController alloc]initWithViewControllers:@[controller1]];
     UINavigationController *navigation = [[UINavigationController alloc]initWithRootViewController:container];
-    [container.view setBackgroundColor:[UIColor scrollViewTexturedBackgroundColor]];
+    [container.view setBackgroundColor:[UIColor lightGrayColor]];
     [container setAnimatedNavbarChange:YES];
     [container setStackType:DMGesturedNavigationControllerStackLikeNavigationController];
     [navigation setNavigationBarHidden:YES animated:NO];

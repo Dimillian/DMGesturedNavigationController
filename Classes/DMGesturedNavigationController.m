@@ -19,7 +19,7 @@ static char kActive;
 @property (nonatomic, readwrite, getter = isActive) BOOL active;
 @end
 
-static const CGFloat kDefaultNavigationBarHeightPortrait = 60.0;
+static const CGFloat kDefaultNavigationBarHeightPortrait = 64.0f;
 
 @interface DMGesturedNavigationController ()
 {
@@ -114,6 +114,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 60.0;
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
     [self.navigationBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
+    [self.navigationBar setTranslucent:YES];
     [self.view addSubview:self.navigationBar];
     _currentPage = 0;
     _previousPage = 0;
