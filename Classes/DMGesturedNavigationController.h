@@ -179,8 +179,8 @@ typedef NS_ENUM(NSInteger, DMGesturedNavigationControllerPopRemoveAnimation){
  */
 @property (nonatomic) CGFloat maximumInclinaisonAngle;
 
-- (id)initWithRootViewController:(UIViewController *)rootViewController;
-- (id)initWithViewControllers:(NSArray *)viewControllers;
+- (id)initWithRootViewController:(UIViewController *)rootViewController navigationarBarHeight:(CGFloat)height;
+- (id)initWithViewControllers:(NSArray *)viewControllers navigationarBarHeight:(CGFloat)height;
 
 /**
  Pushes a view controller onto the receiver’s stack and updates the display.

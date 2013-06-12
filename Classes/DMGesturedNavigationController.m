@@ -19,8 +19,6 @@ static char kActive;
 @property (nonatomic, readwrite, getter = isActive) BOOL active;
 @end
 
-static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
-
 @interface DMGesturedNavigationController ()
 {
     NSMutableArray *_internalViewControllers;
@@ -33,6 +31,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 @property (nonatomic, readwrite, strong) UIScrollView *containerScrollView;
 @property (nonatomic, readwrite, strong) UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger currentPage;
+@property (nonatomic) CGFloat navigationBarHeight;
 
 - (void)reloadChildViewControllersTryToRebuildStack:(BOOL)rebuildStack;
 - (void)rebuildNavBarStack;
@@ -76,20 +75,23 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     return self;
 }
 
-- (id)initWithRootViewController:(UIViewController *)rootViewController
+- (id)initWithRootViewController:(UIViewController *)rootViewController navigationarBarHeight:(CGFloat)height
 {
     self = [self initWithNibName:nil bundle:nil];
     if (self) {
         [_internalViewControllers addObject:rootViewController];
+        _navigationBarHeight = height;
     }
     return self;
 }
 
-- (id)initWithViewControllers:(NSArray *)viewControllers
+- (id)initWithViewControllers:(NSArray *)viewControllers navigationarBarHeight:(CGFloat)height
 {
     self = [self initWithNibName:nil bundle:nil];
     if (self) {
+        
         _internalViewControllers = [viewControllers mutableCopy];
+        _navigationBarHeight = height;
     }
     return self;
 }
@@ -100,7 +102,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
 {
     [super loadView];
     _containerScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0,
-                                                                         kDefaultNavigationBarHeightPortrait,
+                                                                         self.navigationBarHeight,
                                                                          self.view.frame.size.width,
                                                                          self.view.frame.size.height)];
     [self.containerScrollView setDelegate:self];
@@ -112,7 +114,10 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 44.0;
     [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
      UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.containerScrollView];
-    _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0, 0, self.view.frame.size.width, kDefaultNavigationBarHeightPortrait)];
+    _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0,
+                                                                      0,
+                                                                      self.view.frame.size.width,
+                                                                      self.navigationBarHeight)];
     [self.navigationBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.navigationBar];
     _currentPage = 0;
@@ -561,7 +566,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 
 - (void)setViewControllers:(NSArray *)viewControllers
 {
-    _internalViewControllers = [NSArray arrayWithArray:viewControllers];
+    _internalViewControllers = [[NSArray arrayWithArray:viewControllers]mutableCopy];
     _currentPage = 0;
     _previousPage = 0;
     [self reloadChildViewControllersTryToRebuildStack:YES];
@@ -576,8 +581,8 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
       scrollFrame.size.height = self.view.frame.size.height;
     }
     else{
-      scrollFrame.origin.y = kDefaultNavigationBarHeightPortrait;
-      scrollFrame.size.height = self.view.frame.size.height - kDefaultNavigationBarHeightPortrait;
+      scrollFrame.origin.y = self.navigationBarHeight;
+      scrollFrame.size.height = self.view.frame.size.height - self.navigationBarHeight;
     }
     for (UIViewController *viewController in _internalViewControllers) {
         CGRect vcFrame = viewController.view.frame;
@@ -585,7 +590,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         if (navigationBarHidden) {
             vcFrame.origin.y = 0;
             vcFrame.size.height = self.containerScrollView.frame.size.height;
-            navFrame.origin.y = -kDefaultNavigationBarHeightPortrait;
+            navFrame.origin.y = -self.navigationBarHeight;
         }
         else{
             vcFrame.origin.y = 0;
