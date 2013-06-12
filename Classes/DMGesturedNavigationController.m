@@ -562,7 +562,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 
 - (void)setViewControllers:(NSArray *)viewControllers
 {
-    _internalViewControllers = [NSArray arrayWithArray:viewControllers];
+    _internalViewControllers = [[NSArray arrayWithArray:viewControllers]mutableCopy];
     _currentPage = 0;
     _previousPage = 0;
     [self reloadChildViewControllersTryToRebuildStack:YES];
