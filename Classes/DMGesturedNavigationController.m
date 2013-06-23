@@ -133,6 +133,7 @@ static char kActive;
     if ([controller respondsToSelector:@selector(childViewControllerdidBecomeActive)]) {
         [controller performSelector:@selector(childViewControllerdidBecomeActive)];
     }
+    
     [self setNavigationBarHidden:NO animated:NO];
     [self reloadChildViewControllersTryToRebuildStack:NO];
     [self addObserver:self forKeyPath:@"navigationBarHidden"
@@ -210,7 +211,7 @@ static char kActive;
                                                0,
                                                self.containerScrollView.frame.size.width,
                                                self.containerScrollView.frame.size.height);
-        
+        [viewController willMoveToParentViewController:self];
         [self addChildViewController:viewController];
         [self.containerScrollView addSubview:viewController.view];
         [viewController didMoveToParentViewController:self];
