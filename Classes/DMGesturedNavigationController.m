@@ -203,7 +203,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 64.0f;
     for (UIViewController *viewController in _internalViewControllers) {
         NSInteger index = [_internalViewControllers indexOfObject:viewController];
         viewController.view.frame = CGRectMake(self.containerScrollView.frame.size.width * index,
-                                               0,
+                                               -20.0f,
                                                self.containerScrollView.frame.size.width,
                                                self.containerScrollView.frame.size.height);
         
