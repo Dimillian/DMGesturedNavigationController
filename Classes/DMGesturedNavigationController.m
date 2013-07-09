@@ -31,7 +31,6 @@ static char kActive;
 @property (nonatomic, readwrite, strong) UIScrollView *containerScrollView;
 @property (nonatomic, readwrite, strong) UINavigationBar *navigationBar;
 @property (nonatomic) NSInteger currentPage;
-@property (nonatomic) CGFloat navigationBarHeight;
 
 - (void)reloadChildViewControllersTryToRebuildStack:(BOOL)rebuildStack;
 - (void)rebuildNavBarStack;
@@ -48,6 +47,8 @@ static char kActive;
 - (CGRect)rectForViewController:(UIViewController *)viewController;
 - (NSArray *)viewControllers;
 - (void)notifyVisiblesViewController;
++ (CGFloat)sdkVersion;
++ (BOOL)isIOS7;
 @end
 
 @implementation DMGesturedNavigationController
@@ -75,23 +76,21 @@ static char kActive;
     return self;
 }
 
-- (id)initWithRootViewController:(UIViewController *)rootViewController navigationarBarHeight:(CGFloat)height
+- (id)initWithRootViewController:(UIViewController *)rootViewController
 {
     self = [self initWithNibName:nil bundle:nil];
     if (self) {
         [_internalViewControllers addObject:rootViewController];
-        _navigationBarHeight = height;
     }
     return self;
 }
 
-- (id)initWithViewControllers:(NSArray *)viewControllers navigationarBarHeight:(CGFloat)height
+- (id)initWithViewControllers:(NSArray *)viewControllers
 {
     self = [self initWithNibName:nil bundle:nil];
     if (self) {
         
         _internalViewControllers = [viewControllers mutableCopy];
-        _navigationBarHeight = height;
     }
     return self;
 }
@@ -102,7 +101,7 @@ static char kActive;
 {
     [super loadView];
     _containerScrollView = [[UIScrollView alloc]initWithFrame:CGRectMake(0,
-                                                                         self.navigationBarHeight,
+                                                                         [DMGesturedNavigationController standardNavBarHeight],
                                                                          self.view.frame.size.width,
                                                                          self.view.frame.size.height)];
     [self.containerScrollView setDelegate:self];
@@ -113,11 +112,14 @@ static char kActive;
     [self.containerScrollView setScrollsToTop:NO];
     [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
      UIViewAutoresizingFlexibleWidth];
+    if ([DMGesturedNavigationController isIOS7]) {
+        [self.containerScrollView setContentInset:UIEdgeInsetsMake(-20.0f, 0, 0, 0)];
+    }
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0,
                                                                       0,
                                                                       self.view.frame.size.width,
-                                                                      self.navigationBarHeight)];
+                                                                      [DMGesturedNavigationController standardNavBarHeight])];
     [self.navigationBar setAutoresizingMask:UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.navigationBar];
     _currentPage = 0;
@@ -582,8 +584,8 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
       scrollFrame.size.height = self.view.frame.size.height;
     }
     else{
-      scrollFrame.origin.y = self.navigationBarHeight;
-      scrollFrame.size.height = self.view.frame.size.height - self.navigationBarHeight;
+      scrollFrame.origin.y = [DMGesturedNavigationController standardNavBarHeight];
+      scrollFrame.size.height = self.view.frame.size.height - [DMGesturedNavigationController standardNavBarHeight];
     }
     for (UIViewController *viewController in _internalViewControllers) {
         CGRect vcFrame = viewController.view.frame;
@@ -591,7 +593,7 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
         if (navigationBarHidden) {
             vcFrame.origin.y = 0;
             vcFrame.size.height = self.containerScrollView.frame.size.height;
-            navFrame.origin.y = -self.navigationBarHeight;
+            navFrame.origin.y = -[DMGesturedNavigationController standardNavBarHeight];
         }
         else{
             vcFrame.origin.y = 0;
@@ -750,6 +752,28 @@ removeInBetweenViewControllers:(BOOL)removeInBetweenVC
 {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
+}
+
+
+#pragma mark - iOS Version management
+
+
++ (BOOL)isIOS7
+{
+    return [DMGesturedNavigationController sdkVersion] > 6.9;
+}
+
++ (CGFloat)sdkVersion
+{
+    return [[UIDevice currentDevice]systemVersion].floatValue;
+}
+
++ (CGFloat)standardNavBarHeight
+{
+    if ([DMGesturedNavigationController isIOS7]) {
+        return 64.0f;
+    }
+    return 44.0f;
 }
 
 @end
