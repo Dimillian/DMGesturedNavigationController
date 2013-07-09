@@ -109,6 +109,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 64.0f;
     [self.containerScrollView setShowsHorizontalScrollIndicator:NO];
     [self.containerScrollView setShowsVerticalScrollIndicator:YES];
     [self.containerScrollView setScrollsToTop:NO];
+    [self.containerScrollView setContentInset:UIEdgeInsetsMake(-20.0f, 0, 0, 0)];
     [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
      UIViewAutoresizingFlexibleWidth];
     [self.view addSubview:self.containerScrollView];
@@ -203,7 +204,7 @@ static const CGFloat kDefaultNavigationBarHeightPortrait = 64.0f;
     for (UIViewController *viewController in _internalViewControllers) {
         NSInteger index = [_internalViewControllers indexOfObject:viewController];
         viewController.view.frame = CGRectMake(self.containerScrollView.frame.size.width * index,
-                                               -20.0f,
+                                               0,
                                                self.containerScrollView.frame.size.width,
                                                self.containerScrollView.frame.size.height);
         
