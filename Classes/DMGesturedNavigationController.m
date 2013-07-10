@@ -113,7 +113,8 @@ static char kActive;
     [self.containerScrollView setAutoresizingMask:UIViewAutoresizingFlexibleHeight|
      UIViewAutoresizingFlexibleWidth];
     if ([DMGesturedNavigationController isIOS7]) {
-        [self.containerScrollView setContentInset:UIEdgeInsetsMake(-20.0f, 0, 0, 0)];
+        [self performSelector:@selector(automaticallyAdjustsScrollViewInsets)
+                                        withObject:NO];
     }
     [self.view addSubview:self.containerScrollView];
     _navigationBar = [[UINavigationBar alloc]initWithFrame:CGRectMake(0,
