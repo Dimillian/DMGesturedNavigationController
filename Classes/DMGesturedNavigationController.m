@@ -181,8 +181,8 @@ static char kActive;
 
 - (void)dealloc
 {
-    [self removeObserver:self forKeyPath:@"navigationBarHidden"],
-    [self removeObserver:self forKeyPath:@"currentPage"];
+    //[self removeObserver:self forKeyPath:@"navigationBarHidden"];
+    //[self removeObserver:self forKeyPath:@"currentPage"];
 }
 
 
